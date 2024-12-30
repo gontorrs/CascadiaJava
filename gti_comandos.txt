@@ -1,0 +1,124 @@
+# Configurar nombre de usuario
+git config --global user.name "Tu Nombre"
+
+# Configurar correo electrónico
+git config --global user.email "tu_correo@example.com"
+
+# Ver configuración actual
+git config --list
+
+
+
+
+
+# Inicializar un repositorio en el directorio actual
+git init
+
+# Crear un nuevo archivo (ejemplo) y añadirlo al repositorio
+echo "contenido" > archivo.txt
+
+# Añadir archivos al área de preparación (staging)
+git add archivo.txt
+
+# Hacer el primer commit
+git commit -m "Primer commit"
+
+# Vincular el repositorio local con un remoto
+git remote add origin git@github.com:usuario/repositorio.git
+
+# Subir los cambios al repositorio remoto
+git push -u origin main
+
+
+
+
+
+# Añadir todos los cambios nuevos o modificados al área de preparación
+git add .
+
+# Hacer un commit con un mensaje
+git commit -m "Descripción de los cambios"
+
+# Subir los cambios a la rama principal (o la actual)
+git push origin main
+
+
+
+
+
+# Clonar un repositorio remoto
+git clone git@github.com:usuario/repositorio.git
+
+# Descargar los últimos cambios del repositorio remoto
+git pull origin main
+
+
+
+
+
+
+# Quitar archivos del área de preparación (sin borrar cambios)
+git reset archivo.txt
+
+# Deshacer cambios en el archivo (volver al último commit)
+git checkout -- archivo.txt
+
+# Deshacer el último commit (manteniendo los cambios en el área de trabajo)
+git reset --soft HEAD~1
+
+# Deshacer el último commit (perdiendo los cambios)
+git reset --hard HEAD~1
+
+
+
+
+
+
+# Listar todas las ramas
+git branch -a
+
+# Crear una nueva rama y moverse a ella
+git checkout -b nueva-rama
+
+# Cambiar a una rama existente
+git checkout nombre-rama
+
+# Fusionar otra rama en la actual
+git merge nombre-rama
+
+# Eliminar una rama local
+git branch -d nombre-rama
+
+
+
+
+
+
+# Ver el estado actual del repositorio (archivos modificados, no añadidos, etc.)
+git status
+
+# Ver los logs de commits
+git log
+
+# Ver cambios realizados en un archivo
+git diff archivo.txt
+
+
+
+
+
+
+# Mostrar los remotos configurados
+git remote -v
+
+# Añadir un nuevo remoto
+git remote add origin git@github.com:usuario/repositorio.git
+
+# Cambiar la URL de un remoto
+git remote set-url origin git@github.com:usuario/nuevo-repositorio.git
+
+# Eliminar un remoto
+git remote remove origin
+
+
+
