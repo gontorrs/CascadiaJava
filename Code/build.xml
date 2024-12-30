@@ -1,0 +1,41 @@
+<project name="Cascadia" default="jar" basedir=".">
+
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="classes" />
+	<property name="jar.name" value="Cascadia.jar" />
+	<property name="lib.dir" value="lib" />
+	<property name="docs.dir" value="docs" />
+
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete file="${jar.name}" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${build.dir}" />
+		<javac srcdir="${src.dir}" destdir="${build.dir}">
+			<classpath>
+				<fileset dir="${lib.dir}" includes="*.jar" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${jar.name}" basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="fr.uge.console_game.Main" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="javadoc">
+		<mkdir dir="${docs.dir}" />
+		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}">
+			<classpath>
+				<fileset dir="${lib.dir}" includes="*.jar" />
+			</classpath>
+		</javadoc>
+	</target>
+
+</project>
