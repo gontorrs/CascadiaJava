@@ -1,20 +1,6 @@
 package fr.uge.score_game;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import fr.uge.Cascadia.Animal;
-import fr.uge.Cascadia.GamingBoard;
-import fr.uge.Cascadia.Position;
-import fr.uge.Cascadia.Tile;
+import fr.uge.DataGame.*;
+import java.util.*;
 
 public final class FamilyScore implements ScoreRule {
 	

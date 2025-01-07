@@ -1,12 +1,12 @@
 package fr.uge.score_game;
-
+import fr.uge.DataGame.GamingBoard;
 import java.util.Objects;
-
-import fr.uge.Cascadia.GamingBoard;
 
 public final class IntermediateScore implements ScoreRule {
 	@Override
 	public int calculateScore(GamingBoard gb) {
 		Objects.requireNonNull(gb);
+		return 0;
 	}
+
 }
