@@ -1,10 +1,13 @@
 package fr.uge.DataGame;
 
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import javax.swing.ImageIcon;
 
 public class GamingBoard {
 	private Map<Position, Tile> board;
@@ -20,6 +23,19 @@ public class GamingBoard {
 		startingTiles();
 		printBoard();
 	}
+	
+    public List<Image> getCollageImages(List<Animal> animal, List<Habitat> habitat) {
+        List<Image> images = new ArrayList<>(); 
+
+        
+        for(Animal a : animal) {
+        	images.add(new ImageIcon("data/" + a.toString().toLowerCase() + ".png").getImage());
+        }
+        for(Habitat h : habitat) {
+        	images.add(new ImageIcon("data/" + h.toString().toLowerCase() + ".png").getImage());
+        }
+        return images;
+    }
 
 	private Tile randomTile() {
 		Random r = new Random();

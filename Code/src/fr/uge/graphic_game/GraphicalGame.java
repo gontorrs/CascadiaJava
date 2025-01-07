@@ -1,63 +1,68 @@
 package fr.uge.graphic_game;
-import fr.uge.controllerGame.*;
 
-import zen.Zen;
-import zen.display.ZenFrame;
-import zen.display.ZenPanel;
-import zen.text.ZenGraphics;
-import fr.uge.DataGame.Tile;
-import fr.uge.DataGame.GamingBoard;
-import fr.uge.DataGame.Player;
-import fr.uge.DataGame.Position;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.util.List;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import fr.uge.DataGame.GamingBoard;
+import fr.uge.DataGame.Animal;
+import fr.uge.DataGame.Habitat;
+import fr.uge.DataGame.Player;
 
 public class GraphicalGame {
 
-    private GamingBoard gb1;
-    private GamingBoard gb2;
+    private GamingBoard gameBoard;
 
-    public GraphicalGame(GamingBoard gb1, GamingBoard gb2) {
-        this.gb1 = gb1;
-        this.gb2 = gb2;
+    public GraphicalGame(GamingBoard gameBoard) {
+        this.gameBoard = gameBoard;
     }
 
-    // Método para iniciar la ventana gráfica
-    public void start() {
-        Zen.init(); // Inicializa Zen
+    public void createAndShowGUI() {
+        // Create a window (JFrame)
+        JFrame frame = new JFrame("Animal Collage");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        ZenFrame frame = new ZenFrame("Cascadia Game - Graphical Mode");
-        ZenPanel panel = new ZenPanel();
+        // Create the panel that will hold the images
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                drawCollage(g);
+            }
+        };
+
         frame.add(panel);
-        frame.setSize(600, 600);
+        frame.setSize(600, 400);
         frame.setVisible(true);
-
-        // Llamada al método para dibujar el tablero
-        panel.draw(() -> {
-            drawBoard(gb1, gb2, 50, 50); // Muestra los azulejos en el panel
-        });
     }
 
-    // Dibuja el tablero
-    public void drawBoard(GamingBoard gb1, GamingBoard gb2, int startX, int startY) {
-        ZenGraphics g = ZenGraphics.getGraphics();
+    private void drawCollage(Graphics g) {
+        // Seleccionamos un animal y un hábitat aleatorio
+        Animal animal = Animal.FOX; // O puedes seleccionar un animal aleatorio
+        Habitat habitat = Habitat.FOREST; // O seleccionar un hábitat aleatorio
 
-        // Obtén los azulejos del tablero
-        List<Tile> tiles = gb1.getBoardMap().values().stream().toList();
+        // Obtener las imágenes del collage
+        List<Image> images = gameBoard.getCollageImages(animal, habitat);
 
-        // Dibuja cada azulejo en el tablero
-        for (int i = 0; i < tiles.size(); i++) {
-            Tile tile = tiles.get(i);
-            int x = startX + (i % 5) * 100; // Ajusta la posición horizontal
-            int y = startY + (i / 5) * 100; // Ajusta la posición vertical
-
-            // Dibuja el fondo del tile
-            g.setColor("lightgray");
-            g.fillRect(x, y, 80, 80); // Dibuja un rectángulo para el tile
-
-            // Dibuja la representación textual del tile
-            String tileString = tile.toString();
-            g.setColor("black");
-            g.drawString(tileString, x + 10, y + 10); // Dibuja el texto dentro del tile
+        // Dibujar las imágenes una encima de la otra (apiladas verticalmente)
+        int y = 10; // Coordenada inicial Y
+        for (Image image : images) {
+            g.drawImage(image, 10, y, 100, 100, null);
+            y += 110; // Asegúrate de que cada imagen esté separada
         }
+    }
+
+    public static void main(String[] args) {
+        // Crear la instancia de GamingBoard
+        GamingBoard gameBoard = new GamingBoard();
+
+        // Crear la interfaz gráfica
+        GraphicalGame graphicalGame = new GraphicalGame(gameBoard);
+        graphicalGame.createAndShowGUI();
     }
 }
