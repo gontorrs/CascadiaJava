@@ -33,7 +33,7 @@ public class GamePlay {
 	private void modechoices() {
 		System.out.println("Choose game mode:");
 		System.out.println("1 - Command Line Mode");
-		System.out.println("2 - Square Tile Mode");
+		System.out.println("2 - Graphical interface.");
 		System.out.print("Enter your choice (1 or 2): ");
 	}
 
