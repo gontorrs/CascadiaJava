@@ -1,10 +1,13 @@
 package fr.uge.controllerGame;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Objects;
+
+import com.github.forax.zen.Application;
 
 import fr.uge.DataGame.Animal;
 import fr.uge.DataGame.Difficulty;
@@ -13,6 +16,7 @@ import fr.uge.DataGame.GamingBoard;
 import fr.uge.DataGame.Player;
 import fr.uge.DataGame.Position;
 import fr.uge.DataGame.Tile;
+import fr.uge.graphic_game.SimpleGameController;
 import fr.uge.score_game.FamilyAndIntermediateScore;
 import fr.uge.score_game.ScoreRule;
 
@@ -61,10 +65,15 @@ public class GamePlay {
 	public void startGame() throws IOException {
 		System.out.println("Starting the game in " + difficulty + " mode.");
 		Player p1 = playerCreate(1);
-		GamingBoard gb1 = new GamingBoard(p1);
 		Player p2 = playerCreate(2);
-		GamingBoard gb2 = new GamingBoard(p2);
-		gameTurns(p1, p2, gb1, gb2);
+		if(executionMode == ExecutionMode.COMMAND_LINE) {
+			GamingBoard gb1 = new GamingBoard(p1);
+			GamingBoard gb2 = new GamingBoard(p2);
+			gameTurns(p1, p2, gb1, gb2);
+		}
+		else {
+			Application.run(Color.WHITE, SimpleGameController::graphicBoard);
+		}
 	}
 
 	public GamingBoard getGamingBoard1() {
