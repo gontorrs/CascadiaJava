@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Objects;
 
 import com.github.forax.zen.Application;
+import com.github.forax.zen.ApplicationContext;
+import com.github.forax.zen.KeyboardEvent;
+import com.github.forax.zen.PointerEvent;
 
 import fr.uge.DataGame.Animal;
 import fr.uge.DataGame.Difficulty;
@@ -16,7 +19,9 @@ import fr.uge.DataGame.GamingBoard;
 import fr.uge.DataGame.Player;
 import fr.uge.DataGame.Position;
 import fr.uge.DataGame.Tile;
-import fr.uge.graphic_game.SimpleGameController;
+import fr.uge.graphic_game.ImageLoader;
+import fr.uge.graphic_game.SimpleGameData;
+import fr.uge.graphic_game.SimpleGameView;
 import fr.uge.score_game.FamilyAndIntermediateScore;
 import fr.uge.score_game.ScoreRule;
 
@@ -66,13 +71,14 @@ public class GamePlay {
 		System.out.println("Starting the game in " + difficulty + " mode.");
 		Player p1 = playerCreate(1);
 		Player p2 = playerCreate(2);
-		if(executionMode == ExecutionMode.COMMAND_LINE) {
-			GamingBoard gb1 = new GamingBoard(p1);
-			GamingBoard gb2 = new GamingBoard(p2);
-			gameTurns(p1, p2, gb1, gb2);
-		}
-		else {
-			Application.run(Color.WHITE, SimpleGameController::graphicBoard);
+		if (executionMode == ExecutionMode.COMMAND_LINE) {
+			GamingBoard gb1 = new GamingBoard(p1, true);
+			GamingBoard gb2 = new GamingBoard(p2, true);
+			gameTurns(p1, p2, gb1, gb2, true);
+		} else {
+			GamingBoard gb1 = new GamingBoard(p1, false);
+			GamingBoard gb2 = new GamingBoard(p2, false);
+			gameTurns(p1, p2, gb1, gb2, false);
 		}
 	}
 
@@ -90,14 +96,14 @@ public class GamePlay {
 		return new Player(name);
 	}
 
-	private void gameTurns(Player p1, Player p2, GamingBoard gb1, GamingBoard gb2) throws IOException {
+	private void gameTurns(Player p1, Player p2, GamingBoard gb1, GamingBoard gb2, boolean mode) throws IOException {
 		int turn = 1;
 		do {
 			if (turn % 2 != 0) {
-				turn(p1, gb1);
+				turn(p1, gb1, mode);
 				turn++;
 			} else {
-				turn(p2, gb2);
+				turn(p2, gb2, mode);
 				turn++;
 			}
 		} while (turn <= 20);
@@ -150,24 +156,28 @@ public class GamePlay {
 		}
 	}
 
-	public void turn(Player p, GamingBoard gb) throws IOException {
-		boolean check = false;
-		int opt = 0;
-		System.out.println("Player's " + p.getName() + " turn:");
-		List<Tile> options = gb.OptionTiles();
-		do {
-			opt = ChooseOpt(p);
-		} while (opt < 0 || opt > 4);
-		Tile habitatTile = chooseHabitatOption(options, opt);
-		do {
-			check = placeHabitat(habitatTile, gb, p);
-		} while (!check);
-		gb.printBoard();
-		Tile animalTile = chooseAnimalOption(options, opt);
-		do {
-			check = placeAnimal(animalTile, gb, p);
-		} while (!check);
-		gb.printBoard();
+	public void turn(Player p, GamingBoard gb, boolean mode) throws IOException {
+		if(mode) {
+			boolean check = false;
+			int opt = 0;
+			System.out.println("Player's " + p.getName() + " turn:");
+			List<Tile> options = gb.OptionTiles(mode);
+			do {
+				opt = ChooseOpt(p);
+			} while (opt < 0 || opt > 4);
+			Tile habitatTile = chooseHabitatOption(options, opt);
+			do {
+				check = placeHabitat(habitatTile, gb, p);
+			} while (!check);
+			gb.printBoard();
+			Tile animalTile = chooseAnimalOption(options, opt);
+			do {
+				check = placeAnimal(animalTile, gb, p);
+			} while (!check);
+			gb.printBoard();
+		}else {
+			
+		}
 	}
 
 	public boolean placeHabitat(Tile habitatTile, GamingBoard gb, Player p) throws IOException {

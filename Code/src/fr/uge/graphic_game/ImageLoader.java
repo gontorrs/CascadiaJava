@@ -10,18 +10,21 @@ import javax.imageio.ImageIO;
 public class ImageLoader {
     private final BufferedImage[] animalImages;
     private final BufferedImage[] habitatImages;
+    private final BufferedImage[] blankImages;
 
-    public ImageLoader(String dir, String[] animals, String[] habitats) {
+    public ImageLoader(String dir, String[] animals, String[] habitats, String blank) {
         Objects.requireNonNull(animals);
         Objects.requireNonNull(habitats);
         animalImages = new BufferedImage[animals.length];
         habitatImages = new BufferedImage[habitats.length];
+        blankImages = new BufferedImage[1];
         for (var i = 0; i < animals.length; i++) {
             setImage(animalImages, i, dir, animals[i]);
         }
         for (var i = 0; i < habitats.length; i++) {
             setImage(habitatImages, i, dir, habitats[i]);
         }
+        setImage(blankImages, 0, dir, blank);
     }
 
     private void setImage(BufferedImage[] images, int position, String dirPath, String imagePath) {
@@ -41,4 +44,8 @@ public class ImageLoader {
     public BufferedImage habitatImage(int id) {
         return habitatImages[id];
     }
+    public BufferedImage blankImg() {
+        return blankImages[0];
+    } 
+
 }

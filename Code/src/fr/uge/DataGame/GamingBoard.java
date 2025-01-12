@@ -1,13 +1,16 @@
 package fr.uge.DataGame;
 
-import java.awt.Image;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import javax.swing.ImageIcon;
+import com.github.forax.zen.Application;
+
+import fr.uge.graphic_game.SimpleGameController;
+import fr.uge.graphic_game.SimpleGameData;
 
 public class GamingBoard {
 	private Map<Position, Tile> board;
@@ -15,46 +18,66 @@ public class GamingBoard {
 	private int gridWidth = 5; // x
 	private int gridHeight = 5; // y
 	private final int userAnimal1 = 0, /* userAnimal2 = 1 */ userNotAnimal = 3;
+	private final boolean command = true, graph = false;
+	SimpleGameData data;
+	SimpleGameData optionTiles;
 
-	public GamingBoard(Player player) {
+	public GamingBoard(Player player, boolean mode) { // Mode == true (command).
 		this.player = player;
 		this.board = new HashMap<>();
-		emptyBoard(board);
-		startingTiles();
-		printBoard();
-	}
-	
-    public List<Image> getCollageImages(List<Animal> animal, List<Habitat> habitat) {
-        List<Image> images = new ArrayList<>(); 
-
-        
-        for(Animal a : animal) {
-        	images.add(new ImageIcon("data/" + a.toString().toLowerCase() + ".png").getImage());
-        }
-        for(Habitat h : habitat) {
-        	images.add(new ImageIcon("data/" + h.toString().toLowerCase() + ".png").getImage());
-        }
-        return images;
-    }
-
-	private Tile randomTile() {
-		Random r = new Random();
-		int chance = 0;
-		chance = r.nextInt(4);
-		if (chance == 0 || chance == 1) {
-			return new Tile(twoAnimal(), oneHabitat(), userNotAnimal);
+		if (mode) {
+			emptyBoard(board, command);
+			startingTiles(command);
+			printBoard();
 		} else {
-			return new Tile(oneAnimal(), oneHabitat(), userNotAnimal);
+			data = new SimpleGameData(gridWidth, gridHeight);
+			optionTiles = new SimpleGameData(2, 4);
+			emptyBoard(optionTiles.getMatrix(), graph);
+			OptionTiles(graph);
+			emptyBoard(board, graph);
+			startingTiles(graph);
+			Application.run(Color.WHITE, context -> SimpleGameController.graphicBoard(context, data, optionTiles));
 		}
 	}
 
-	private void startingTiles() {
+	public Tile randomTile(boolean mode) {
+		Random r = new Random();
+		int chance = 0;
+		chance = r.nextInt(4);
+		if (mode) {
+			if (chance == 0 || chance == 1) {
+				return new Tile(twoAnimal(), oneHabitat(), userNotAnimal);
+			} else {
+				return new Tile(oneAnimal(), oneHabitat(), userNotAnimal);
+			}
+		} else {
+			if (chance == 0 || chance == 1) {
+				return new Tile(twoAnimal(), oneHabitat(), userNotAnimal, true);
+			} else {
+				return new Tile(oneAnimal(), oneHabitat(), userNotAnimal, true);
+			}
+		}
+	}
+
+	public void startingTiles(boolean mode) {
 		Tile newTile;
-		for (int row = 1; row < gridHeight; row++) {
-			for (int col = 0; col < gridWidth; col++) {
-				if (row == 2 && (col == 1 || col == 2 || col == 3)) {
-					newTile = randomTile();
-					board.put(new Position(col, row), newTile);
+		if (mode) {
+			for (int row = 1; row < gridHeight; row++) {
+				for (int col = 0; col < gridWidth; col++) {
+					if (row == 2 && (col == 1 || col == 2 || col == 3)) {
+						newTile = randomTile(command);
+						board.put(new Position(col, row), newTile);
+					}
+				}
+			}
+		} else {
+			for (int row = 0; row < gridWidth; row++) {
+				for (int col = 0; col < gridHeight; col++) {
+					if (row == 2 && (col == 1 || col == 2 || col == 3)) {
+						Position position = new Position(col, row);
+						Tile tile = randomTile(graph);
+						data.getMatrix().put(position, tile);
+					}
 				}
 			}
 		}
@@ -82,30 +105,68 @@ public class GamingBoard {
 		}
 	}
 
-	public void emptyBoard(Map<Position, Tile> boardEmpty) {
-		for (int row = 0; row < gridHeight; row++) {
-			for (int col = 0; col < gridWidth; col++) {
-				boardEmpty.put(new Position(col, row), new Tile(emptyAnimal(), emptyHabitat(), userNotAnimal));
+	public void emptyBoard(Map<Position, Tile> boardEmpty, boolean mode) {
+		if (mode) {
+			for (int row = 0; row < gridHeight; row++) {
+				for (int col = 0; col < gridWidth; col++) {
+					boardEmpty.put(new Position(col, row), new Tile(emptyAnimal(), emptyHabitat(), userNotAnimal));
+				}
+			}
+		} else {
+			for (int row = 0; row < gridHeight; row++) {
+				for (int col = 0; col < gridWidth; col++) {
+					boardEmpty.put(new Position(col, row),
+							new Tile(emptyAnimal(), emptyHabitat(), userNotAnimal, false));
+				}
 			}
 		}
 	}
 
-	public List<Tile> OptionTiles() {
-		Tile[] tiles = generateTiles();
-		displayTilesSummary(tiles);
-		displayTileDetails(tiles);
-		List<Tile> optionTiles = new ArrayList<>();
-		for (int i = 0; i < 4; i++) {
-			optionTiles.add(tiles[i]);
-		}
-		return optionTiles;
+	public List<Tile> OptionTiles(boolean mode) {
+	    List<Tile> optionTilesList = new ArrayList<>();
+	    if (mode) {
+	        Tile[] tiles = generateTiles(command);
+	        for (int i = 0; i < 4; i++) {
+	        	optionTilesList.add(tiles[i]);
+	        }
+	        displayTilesSummary(tiles);
+	        displayTileDetails(tiles);
+	    } else {
+	        for (int row = 0; row < 4; row++) {
+				for (int col = 0; col < 2; col++) {
+					Position position = new Position(col, row);
+					Tile tile = randomTile(graph);
+					if (col == 0) {
+						optionTiles.getMatrix().put(position, tile);
+						
+					}
+					else {
+						optionTiles.getMatrix().put(position, new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true));
+					}
+				}
+			}
+	    }
+	    return optionTilesList;
 	}
 
-	private Tile[] generateTiles() {
-		return new Tile[] { randomTile(), randomTile(), randomTile(), randomTile(),
-				new Tile(oneAnimal(), emptyHabitat(), userAnimal1), new Tile(oneAnimal(), emptyHabitat(), userAnimal1),
-				new Tile(oneAnimal(), emptyHabitat(), userAnimal1),
-				new Tile(oneAnimal(), emptyHabitat(), userAnimal1) };
+
+	
+	private Tile[] generateTiles(boolean mode) {
+		if (mode) {
+			return new Tile[] { randomTile(command), randomTile(command), randomTile(command), randomTile(command),
+					new Tile(oneAnimal(), emptyHabitat(), userAnimal1),
+					new Tile(oneAnimal(), emptyHabitat(), userAnimal1),
+					new Tile(oneAnimal(), emptyHabitat(), userAnimal1),
+					new Tile(oneAnimal(), emptyHabitat(), userAnimal1) };
+		}
+		else {
+			return new Tile[] { randomTile(graph), randomTile(graph), randomTile(graph), randomTile(graph),
+					new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true), 
+					new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true),
+					new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true),
+					new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true) };
+		}
+
 	}
 
 	private void displayTilesSummary(Tile[] tiles) {
@@ -213,7 +274,7 @@ public class GamingBoard {
 
 	public void updateBoard(int posExtend) {
 		Map<Position, Tile> boardFinal = new HashMap<>();
-		emptyBoard(boardFinal);
+		emptyBoard(boardFinal, command);
 		for (int row = 0; row < gridHeight; row++) {
 			for (int col = 0; col < gridWidth; col++) {
 				Position currentPos = new Position(col, row);

@@ -1,52 +1,98 @@
 package fr.uge.graphic_game;
 
-import java.util.Random;
+import fr.uge.DataGame.Animal;
+import fr.uge.DataGame.Habitat;
+import fr.uge.DataGame.Position;
+import fr.uge.DataGame.Tile;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class SimpleGameData {
-	private final Cell[][] matrix;
+	private final Map<Position, Tile> matrix;
+	private final int gridWidth;
+	private final int gridHeight;
 	private int wins;
-	public SimpleGameData(int nbLines, int nbColumns) {
-		if (nbLines < 0 || nbColumns < 0) {
+	private Position firstClickPosition = null;
+
+	public SimpleGameData(int gridWidth, int gridHeight) {
+		if (gridWidth < 0 || gridHeight < 0) {
 			throw new IllegalArgumentException();
 		}
-		matrix = new Cell[nbLines][nbColumns];
-		wins = 0;
-		randomise();
+		this.gridWidth = gridWidth;
+		this.gridHeight = gridHeight;
+		this.matrix = new HashMap<>();
+		this.wins = 0;
+
+		// Inicializar todas las celdas con instancias válidas de Tile
+		for (int i = 0; i < gridWidth; i++) {
+			for (int j = 0; j < gridHeight; j++) {
+				List<Animal> animalList = new ArrayList<>(); // Inicializa con una lista vacía o con datos
+																// predeterminados
+				List<Habitat> habitatList = new ArrayList<>(); // Inicializa con una lista vacía o con datos
+																// predeterminados
+				Tile tile = new Tile(animalList, habitatList, 0, false); // Ajusta según sea necesario
+				matrix.put(new Position(i, j), tile);
+			}
+		}
 	}
-	private void randomise() {
-		var tab = new int[lines() * columns()];
-		var random = new Random();
-		for (var i = 0; i < tab.length; i++) {
-		  var j = random.nextInt(i + 1);
-		  tab[i] = tab[j];
-		  tab[j] = i / 2;
-		}
-		for (var i = 0; i < tab.length; i++) {
-		  int secondAnimalId = random.nextBoolean() ? (tab[i] + 1) % 5 : -1;
-		  matrix[i % lines()][i / lines()] = new Cell(tab[i], secondAnimalId);
-		}
-	  }
+
 	public int lines() {
-		return matrix.length;
+		return gridWidth;
 	}
+
 	public int columns() {
-		return matrix[0].length;
+		return gridHeight;
 	}
-	public int id(int i, int j) {
-		return matrix[i][j].id();
+
+	public int idAnimal(int i, int j) {
+		return matrix.get(new Position(i, j)).idAnimal();
 	}
+
+	public int idHabitat(int i, int j) {
+		return matrix.get(new Position(i, j)).idHabitat();
+	}
+
 	public int secondAnimalId(int i, int j) {
-		return matrix[i][j].secondAnimalId();
+		return matrix.get(new Position(i, j)).secondAnimalId();
 	}
-	public void clickOnCell(int i, int j) {
-		if (i < 0 || columns() <= i || j < 0 || lines() <= j || isVisible(i, j)) {
-			return;
+
+	public void clickOnCell(int i, int j, SimpleGameData otherData) {
+		Position clickedPosition = new Position(i, j);
+		if (firstClickPosition == null) {
+			firstClickPosition = clickedPosition;
+		} else {
+			transferData(firstClickPosition, clickedPosition, otherData);
+			firstClickPosition = null;
 		}
-		System.out.println("Clicked on cell: [" + i + "," +  j + "]");
 	}
+
+	private void transferData(Position from, Position to, SimpleGameData otherData) {
+		Tile fromTile = otherData.matrix.get(from);
+		Tile toTile = this.matrix.get(to);
+
+		if (fromTile != null && toTile != null) {
+			List<Animal> newAnimalList = new ArrayList<>(fromTile.animalList());
+			List<Habitat> newHabitatList = new ArrayList<>(fromTile.habitatList());
+			Tile newTile = new Tile(newAnimalList, newHabitatList, toTile.userTile());
+			this.matrix.put(to, newTile);
+		}
+	}
+
 	public boolean win() {
-		return 2 * wins == lines() * columns();
+		return 2 * wins == gridWidth * gridHeight;
 	}
+
+	public Map<Position, Tile> getMatrix() {
+		return this.matrix;
+	}
+
 	public boolean isVisible(int i, int j) {
-		return matrix[i][j].visible();
+		Tile tile = matrix.get(new Position(i, j));
+		if (tile == null) {
+			return false; // O cualquier valor predeterminado que tenga sentido en tu contexto
+		}
+		return tile.visible();
 	}
 }
