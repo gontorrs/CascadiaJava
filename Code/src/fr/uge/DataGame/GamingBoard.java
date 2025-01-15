@@ -40,43 +40,28 @@ public class GamingBoard {
 		}
 	}
 
-	public Tile randomTile(boolean mode) {
+	public Tile randomTile() {
 		Random r = new Random();
 		int chance = 0;
 		chance = r.nextInt(4);
-		if (mode) {
-			if (chance == 0 || chance == 1) {
-				return new Tile(twoAnimal(), oneHabitat(), userNotAnimal);
-			} else {
-				return new Tile(oneAnimal(), oneHabitat(), userNotAnimal);
-			}
+		if (chance == 0 || chance == 1) {
+			return new Tile(twoAnimal(), oneHabitat(), userNotAnimal, true);
 		} else {
-			if (chance == 0 || chance == 1) {
-				return new Tile(twoAnimal(), oneHabitat(), userNotAnimal, true);
-			} else {
-				return new Tile(oneAnimal(), oneHabitat(), userNotAnimal, true);
-			}
+			return new Tile(twoAnimal(), oneHabitat(), userNotAnimal, true);
 		}
 	}
 
 	public void startingTiles(boolean mode) {
 		Tile newTile;
-		if (mode) {
-			for (int row = 1; row < gridHeight; row++) {
-				for (int col = 0; col < gridWidth; col++) {
-					if (row == 2 && (col == 1 || col == 2 || col == 3)) {
-						newTile = randomTile(command);
+		for (int row = 1; row < gridHeight; row++) {
+			for (int col = 0; col < gridWidth; col++) {
+				if (row == 2 && (col == 1 || col == 2 || col == 3)) {
+					newTile = randomTile();
+					if(mode) {
 						board.put(new Position(col, row), newTile);
 					}
-				}
-			}
-		} else {
-			for (int row = 0; row < gridWidth; row++) {
-				for (int col = 0; col < gridHeight; col++) {
-					if (row == 2 && (col == 1 || col == 2 || col == 3)) {
-						Position position = new Position(col, row);
-						Tile tile = randomTile(graph);
-						data.getMatrix().put(position, tile);
+					else {
+						data.getMatrix().put(new Position(col, row), newTile);
 					}
 				}
 			}
@@ -135,7 +120,7 @@ public class GamingBoard {
 	        for (int row = 0; row < 4; row++) {
 				for (int col = 0; col < 2; col++) {
 					Position position = new Position(col, row);
-					Tile tile = randomTile(graph);
+					Tile tile = randomTile();
 					if (col == 0) {
 						optionTiles.getMatrix().put(position, tile);
 						
@@ -152,20 +137,11 @@ public class GamingBoard {
 
 	
 	private Tile[] generateTiles(boolean mode) {
-		if (mode) {
-			return new Tile[] { randomTile(command), randomTile(command), randomTile(command), randomTile(command),
-					new Tile(oneAnimal(), emptyHabitat(), userAnimal1),
-					new Tile(oneAnimal(), emptyHabitat(), userAnimal1),
-					new Tile(oneAnimal(), emptyHabitat(), userAnimal1),
-					new Tile(oneAnimal(), emptyHabitat(), userAnimal1) };
-		}
-		else {
-			return new Tile[] { randomTile(graph), randomTile(graph), randomTile(graph), randomTile(graph),
-					new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true), 
-					new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true),
-					new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true),
-					new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true) };
-		}
+		return new Tile[] { randomTile(), randomTile(), randomTile(), randomTile(),
+				new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true), 
+				new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true),
+				new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true),
+				new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true) };
 
 	}
 

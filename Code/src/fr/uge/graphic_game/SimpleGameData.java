@@ -38,13 +38,14 @@ public class SimpleGameData {
 		}
 	}
 
-	public int lines() {
-		return gridWidth;
-	}
+	public int width() {
+		   return gridWidth;    // era lines()
+		}
 
-	public int columns() {
-		return gridHeight;
-	}
+		public int height() {
+		   return gridHeight;   // era columns()
+		}
+
 
 	public int idAnimal(int i, int j) {
 		return matrix.get(new Position(i, j)).idAnimal();
@@ -56,28 +57,6 @@ public class SimpleGameData {
 
 	public int secondAnimalId(int i, int j) {
 		return matrix.get(new Position(i, j)).secondAnimalId();
-	}
-
-	public void clickOnCell(int i, int j, SimpleGameData otherData) {
-		Position clickedPosition = new Position(i, j);
-		if (firstClickPosition == null) {
-			firstClickPosition = clickedPosition;
-		} else {
-			transferData(firstClickPosition, clickedPosition, otherData);
-			firstClickPosition = null;
-		}
-	}
-
-	private void transferData(Position from, Position to, SimpleGameData otherData) {
-		Tile fromTile = otherData.matrix.get(from);
-		Tile toTile = this.matrix.get(to);
-
-		if (fromTile != null && toTile != null) {
-			List<Animal> newAnimalList = new ArrayList<>(fromTile.animalList());
-			List<Habitat> newHabitatList = new ArrayList<>(fromTile.habitatList());
-			Tile newTile = new Tile(newAnimalList, newHabitatList, toTile.userTile());
-			this.matrix.put(to, newTile);
-		}
 	}
 
 	public boolean win() {

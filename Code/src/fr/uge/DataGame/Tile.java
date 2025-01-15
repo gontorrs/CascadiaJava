@@ -102,32 +102,28 @@ public record Tile(List<Animal> animalList, List<Habitat> habitatList, int userT
 
     public int idAnimal() {
         if (animalList.isEmpty()) {
-            return 5;
+            return -1;
         }
     	return animalToInt(animalList.get(0).toString());
     }
     public int idHabitat() {
         if (habitatList.isEmpty()) {
-        	System.out.println("Habitat empty.");
-            return 5;
+        	//System.out.println("Habitat empty.");
+            return -1;
         }
-        System.out.println("Habitat ID: " + habitatToInt(habitatList.get(0).toString()));
+        //System.out.println("Habitat ID: " + habitatToInt(habitatList.get(0).toString()));
         return habitatToInt(habitatList.get(0).toString());
-    }
-    
-    public boolean habitatVis() {
-    	if(habitatList().isEmpty()) {
-    		return false;
-    	}
-    	else {
-    		return true;
-    	}
     }
     
     public int secondAnimalId() {
         if (animalList.isEmpty()) {
-            return 5;
+            return -1;
         }
-    	return animalToInt(animalList.get(0).toString());
+        else if (animalList.size() == 1) {
+        	return -1;
+        }
+        else {
+        	return animalToInt(animalList.get(1).toString());
+        }
     }
 }
