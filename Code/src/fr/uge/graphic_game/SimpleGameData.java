@@ -25,14 +25,11 @@ public class SimpleGameData {
 		this.matrix = new HashMap<>();
 		this.wins = 0;
 
-		// Inicializar todas las celdas con instancias válidas de Tile
 		for (int i = 0; i < gridWidth; i++) {
 			for (int j = 0; j < gridHeight; j++) {
-				List<Animal> animalList = new ArrayList<>(); // Inicializa con una lista vacía o con datos
-																// predeterminados
-				List<Habitat> habitatList = new ArrayList<>(); // Inicializa con una lista vacía o con datos
-																// predeterminados
-				Tile tile = new Tile(animalList, habitatList, 0, false); // Ajusta según sea necesario
+				List<Animal> animalList = new ArrayList<>();
+				List<Habitat> habitatList = new ArrayList<>();
+				Tile tile = new Tile(animalList, habitatList, 0, false);
 				matrix.put(new Position(i, j), tile);
 			}
 		}
@@ -73,5 +70,23 @@ public class SimpleGameData {
 			return false; // O cualquier valor predeterminado que tenga sentido en tu contexto
 		}
 		return tile.visible();
+	}
+	public void hideAll() {
+		for (int i = 0; i < gridWidth; i++) {
+			for (int j = 0; j < gridHeight; j++) {
+				Position pos = new Position(i,j);
+				Tile t = matrix.get(pos);
+				matrix.put(new Position(i, j), new Tile(t.animalList(), t.habitatList(), t.userTile(), false));
+			}
+		}
+	}
+	public void showAll() {
+		for (int i = 0; i < gridWidth; i++) {
+			for (int j = 0; j < gridHeight; j++) {
+				Position pos = new Position(i,j);
+				Tile t = matrix.get(pos);
+				matrix.put(new Position(i, j), new Tile(t.animalList(), t.habitatList(), t.userTile(), true));
+			}
+		}
 	}
 }

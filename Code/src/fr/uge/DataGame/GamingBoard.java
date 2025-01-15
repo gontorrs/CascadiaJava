@@ -19,8 +19,8 @@ public class GamingBoard {
 	private int gridHeight = 5; // y
 	private final int userAnimal1 = 0, /* userAnimal2 = 1 */ userNotAnimal = 3;
 	private final boolean command = true, graph = false;
-	SimpleGameData data;
-	SimpleGameData optionTiles;
+	private SimpleGameData data;
+	private SimpleGameData optionTiles;
 
 	public GamingBoard(Player player, boolean mode) { // Mode == true (command).
 		this.player = player;
@@ -36,7 +36,6 @@ public class GamingBoard {
 			OptionTiles(graph);
 			emptyBoard(board, graph);
 			startingTiles(graph);
-			Application.run(Color.WHITE, context -> SimpleGameController.graphicBoard(context, data, optionTiles));
 		}
 	}
 
@@ -109,25 +108,20 @@ public class GamingBoard {
 
 	public List<Tile> OptionTiles(boolean mode) {
 	    List<Tile> optionTilesList = new ArrayList<>();
+	    Tile[] tiles = generateTiles();
 	    if (mode) {
-	        Tile[] tiles = generateTiles(command);
 	        for (int i = 0; i < 4; i++) {
 	        	optionTilesList.add(tiles[i]);
 	        }
 	        displayTilesSummary(tiles);
 	        displayTileDetails(tiles);
 	    } else {
+	    	int index = 0;
 	        for (int row = 0; row < 4; row++) {
 				for (int col = 0; col < 2; col++) {
 					Position position = new Position(col, row);
-					Tile tile = randomTile();
-					if (col == 0) {
-						optionTiles.getMatrix().put(position, tile);
-						
-					}
-					else {
-						optionTiles.getMatrix().put(position, new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true));
-					}
+					optionTiles.getMatrix().put(position, tiles[index]);
+					index++;
 				}
 			}
 	    }
@@ -136,7 +130,7 @@ public class GamingBoard {
 
 
 	
-	private Tile[] generateTiles(boolean mode) {
+	private Tile[] generateTiles() {
 		return new Tile[] { randomTile(), randomTile(), randomTile(), randomTile(),
 				new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true), 
 				new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true),
@@ -292,6 +286,13 @@ public class GamingBoard {
 
 	public void setHeight(int newHeight) {
 		this.gridHeight = newHeight;
+	}
+	
+	public SimpleGameData getDataMatrix() {
+		return data;
+	}
+	public SimpleGameData getOptionMatrix() {
+		return optionTiles;
 	}
 
 	public int getHeight() {

@@ -20,6 +20,7 @@ import fr.uge.DataGame.Player;
 import fr.uge.DataGame.Position;
 import fr.uge.DataGame.Tile;
 import fr.uge.graphic_game.ImageLoader;
+import fr.uge.graphic_game.SimpleGameController;
 import fr.uge.graphic_game.SimpleGameData;
 import fr.uge.graphic_game.SimpleGameView;
 import fr.uge.score_game.FamilyAndIntermediateScore;
@@ -78,7 +79,17 @@ public class GamePlay {
 		} else {
 			GamingBoard gb1 = new GamingBoard(p1, false);
 			GamingBoard gb2 = new GamingBoard(p2, false);
-			gameTurns(p1, p2, gb1, gb2, false);
+		    SimpleGameData data1 = gb1.getDataMatrix();
+		    SimpleGameData opt1 = gb1.getOptionMatrix();
+		    SimpleGameData data2 = gb2.getDataMatrix();
+		    SimpleGameData opt2 = gb2.getOptionMatrix();
+
+		    // Lanza la aplicación
+		    Application.run(Color.WHITE, context -> {
+		        // Lógica de dibujo y eventos, usando una variante de graphicBoard
+		        // que reciba data1, data2, etc.
+		        SimpleGameController.graphicBoard(context, data1, opt1, data2, opt2);
+		    });
 		}
 	}
 
@@ -157,26 +168,24 @@ public class GamePlay {
 	}
 
 	public void turn(Player p, GamingBoard gb, boolean mode) throws IOException {
-		if(mode) {
-			boolean check = false;
-			int opt = 0;
-			System.out.println("Player's " + p.getName() + " turn:");
-			List<Tile> options = gb.OptionTiles(mode);
-			do {
-				opt = ChooseOpt(p);
-			} while (opt < 0 || opt > 4);
-			Tile habitatTile = chooseHabitatOption(options, opt);
-			do {
-				check = placeHabitat(habitatTile, gb, p);
-			} while (!check);
+		boolean check = false;
+		int opt = 0;
+		System.out.println("Player's " + p.getName() + " turn:");
+		List<Tile> options = gb.OptionTiles(mode);
+		do {
+			opt = ChooseOpt(p);
+		} while (opt < 0 || opt > 4);
+		Tile habitatTile = chooseHabitatOption(options, opt);
+		do {
+			check = placeHabitat(habitatTile, gb, p);
+		} while (!check);
+		gb.printBoard();
+		Tile animalTile = chooseAnimalOption(options, opt);
+		do {
+			check = placeAnimal(animalTile, gb, p);
+		} while (!check);
+		if (mode) {
 			gb.printBoard();
-			Tile animalTile = chooseAnimalOption(options, opt);
-			do {
-				check = placeAnimal(animalTile, gb, p);
-			} while (!check);
-			gb.printBoard();
-		}else {
-			
 		}
 	}
 

@@ -8,19 +8,20 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 public class ImageLoader {
-    private final BufferedImage[] animalImages;
-    private final BufferedImage[] habitatImages;
-    private final BufferedImage[] blankImages;
-    private final BufferedImage[] userImages;
+    private final BufferedImage[] animalImages, habitatImages, blankImages, userImages, numberImages, playerImages;
 
-    public ImageLoader(String dir, String[] animals, String[] habitats, String blank, String[] userAnimals) {
+    public ImageLoader(String dir, String[] animals, String[] habitats, String blank, String[] userAnimals, String [] numbers, String [] players) {
         Objects.requireNonNull(animals);
         Objects.requireNonNull(habitats);
         Objects.requireNonNull(blank);
         Objects.requireNonNull(userAnimals);
+        Objects.requireNonNull(numbers);
+        Objects.requireNonNull(players);
         animalImages = new BufferedImage[animals.length];
         habitatImages = new BufferedImage[habitats.length];
         userImages = new BufferedImage[userAnimals.length];
+        numberImages = new BufferedImage[numbers.length];
+        playerImages = new BufferedImage[players.length];
         blankImages = new BufferedImage[1];
         for (var i = 0; i < animals.length; i++) {
             setImage(animalImages, i, dir, animals[i]);
@@ -30,6 +31,12 @@ public class ImageLoader {
         }
         for (var i = 0; i < userAnimals.length; i++) {
             setImage(userImages, i, dir, userAnimals[i]);
+        }
+        for (var i = 0; i < numbers.length; i++) {
+            setImage(numberImages, i, dir, numbers[i]);
+        }
+        for (var i = 0; i < players.length; i++) {
+            setImage(playerImages, i, dir, players[i]);
         }
         setImage(blankImages, 0, dir, blank);
     }
@@ -67,6 +74,14 @@ public class ImageLoader {
 
     public BufferedImage blankImg() {
         return blankImages[0];
+    }
+    
+    public BufferedImage numberImage(int id) {
+        return numberImages[id];
+    }
+    
+    public BufferedImage playerImage(int id) {
+        return playerImages[id];
     } 
 
 }

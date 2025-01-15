@@ -85,64 +85,89 @@ public record SimpleGameView(int xOrigin, int yOrigin, int height, int width, in
 	    }
 	}
 
-	private void drawCell(Graphics2D graphics, SimpleGameData data, int i, int j) {
-		var x = xFromI(i);
-		var y = yFromJ(j);
-		BufferedImage animalImage1;
-		BufferedImage animalImage2;
-		BufferedImage habitatImage;
+	private void drawCell(Graphics2D graphics, SimpleGameData data, int i, int j, boolean optionMatrix) {
+	    var x = xFromI(i);
+	    var y = yFromJ(j);
+	    BufferedImage animalImage1, animalImage2, habitatImage, number;
 
-		// Obtener el Tile actual
-		Tile tile = data.getMatrix().get(new Position(i, j));
+	    // Obtener el Tile actual
+	    Tile tile = data.getMatrix().get(new Position(i, j));
 
-		// Verificar la visibilidad de la celda
-		if (!data.isVisible(i, j)) {
-			// Si no es visible, usar imágenes en blanco
-			animalImage1 = loader.blankImg();
-			animalImage2 = loader.blankImg();
-			habitatImage = loader.blankImg();
-		} else {
-			// Obtener las imágenes utilizando los métodos auxiliares
-			animalImage1 = getAnimalImage(tile.idAnimal(), tile.userTile(), loader);
-			animalImage2 = getAnimalImage(tile.secondAnimalId(), tile.userTile(), loader);
-			habitatImage = getHabitatImage(tile.idHabitat(), loader);
-		}
+	    // Verificar la visibilidad de la celda
+	    if (!data.isVisible(i, j)) {
+	        // Si no es visible, usar imágenes en blanco
+	        animalImage1 = loader.blankImg();
+	        animalImage2 = loader.blankImg();
+	        habitatImage = loader.blankImg();
+	        number = loader.blankImg();
+	    } else {
+	        // Obtener las imágenes utilizando los métodos auxiliares
+	        animalImage1 = getAnimalImage(tile.idAnimal(), tile.userTile(), loader);
+	        animalImage2 = getAnimalImage(tile.secondAnimalId(), tile.userTile(), loader);
+	        habitatImage = getHabitatImage(tile.idHabitat(), loader);
+	    }
+	    
+	    int cellSize = squareSize;
+	    int imageSize = cellSize / 3;
 
-		// Dibujar las imágenes en la celda
-		int cellSize = squareSize;
-		int imageSize = cellSize / 3;
+	    drawImage(graphics, habitatImage, x + cellSize / 2 + 2, y + 2, imageSize, imageSize);
+	    drawImage(graphics, animalImage1, x + 2, y + 2, imageSize, imageSize);
+	    drawImage(graphics, animalImage2, x + cellSize / 2 + 2, y + imageSize + 4, imageSize, imageSize);
+	    if(optionMatrix) {
+	    	int xOpt = j;
+	        int yOpt = i;
+	        if(xOpt < 2 || yOpt < 2) {
+	        	number = loader.numberImage(((yOpt + 2 * (xOpt % 2)) % 4));
+	        	drawImage(graphics, number, x + 2, y + cellSize - imageSize - 2, imageSize, imageSize);
+	        }
+	        else{
+	        	xOpt = i - 2;
+	        	yOpt = j - 2;
+	        	number = loader.numberImage(((yOpt + 2 * (xOpt % 2)) % 4));
+	        	drawImage(graphics, number, x + 2, y + cellSize - imageSize - 2, imageSize, imageSize);
+	        }
+	    }
 
-		drawImage(graphics, habitatImage, x + cellSize / 2 + 2, y + 2, imageSize, imageSize);
-		drawImage(graphics, animalImage1, x + 2, y + 2, imageSize, imageSize);
-		drawImage(graphics, animalImage2, x + cellSize / 2 + 2, y + imageSize + 4, imageSize, imageSize);
-
-		// Dibujar el borde de la celda
-		graphics.setColor(Color.BLACK);
-		graphics.drawRect((int) x, (int) y, cellSize, cellSize);
+	    // Dibujar el borde de la celda
+	    graphics.setColor(Color.BLACK);
+	    graphics.drawRect((int) x, (int) y, cellSize, cellSize);
 	}
 
-	private void draw(Graphics2D graphics, SimpleGameData data1, SimpleGameData data2) {
+	private void draw(Graphics2D graphics, SimpleGameData data, SimpleGameData opt, int turn) {
 		graphics.setColor(Color.WHITE);
 		graphics.fill(new Rectangle2D.Float(xOrigin, yOrigin, height, width));
-		for (int i = 0; i < data1.width(); i++) {
-			for (int j = 0; j < data1.height(); j++) {
-				drawCell(graphics, data1, i, j);
+		for (int i = 0; i < data.width(); i++) {
+			for (int j = 0; j < data.height(); j++) {
+				drawCell(graphics, data, i, j, false);
 			}
 		}
 
 		float newXOrigin = xOrigin + width + 200;
 
-		for (int i = 0; i < data2.width(); i++) {
-			for (int j = 0; j < data2.height(); j++) {
+		for (int i = 0; i < opt.width(); i++) {
+			for (int j = 0; j < opt.height(); j++) {
 				graphics.translate(newXOrigin - xOrigin, 0);
-				drawCell(graphics, data2, i, j);
+				drawCell(graphics, opt, i, j, true);
 				graphics.translate(-(newXOrigin - xOrigin), 0);
 			}
 		}
+		//Draw the player image
+	    float margin = 50;
+	    float imageWidth = 200;
+	    float imageHeight = 200;
+	    float x = newXOrigin + opt.width() * squareSize + margin;
+	    float y = margin;
+	    if(turn % 2 == 0) {
+	    	BufferedImage image = loader.playerImage(0);
+	    	drawImage(graphics, image, x, y, imageWidth, imageHeight);
+	    }
+	    else {
+	    	BufferedImage image = loader.playerImage(1);
+	    	drawImage(graphics, image, x, y, imageWidth, imageHeight);
+	    }
 	}
 
-	public static void draw(ApplicationContext context, SimpleGameData data, SimpleGameView view,
-			SimpleGameData data2) {
-		context.renderFrame(graphics -> view.draw(graphics, data, data2));
+	public static void draw(ApplicationContext context, SimpleGameData data, SimpleGameView view, SimpleGameData opt, int turn) {
+		context.renderFrame(graphics -> view.draw(graphics, data, opt, turn));
 	}
 }
