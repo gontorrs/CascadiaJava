@@ -11,14 +11,16 @@ import com.github.forax.zen.KeyboardEvent;
 import com.github.forax.zen.PointerEvent;
 
 import fr.uge.DataGame.Animal;
+import fr.uge.DataGame.GamingBoard;
 import fr.uge.DataGame.Habitat;
+import fr.uge.DataGame.OptionBoard;
 import fr.uge.DataGame.Position;
 import fr.uge.DataGame.Tile;
 
 public class SimpleGameController {
 	private static boolean hasSelectedTile;
 	private static Position fromPosition;
-	private static SimpleGameData fromMatrix;
+	private static OptionBoard fromMatrix;
 
 	public SimpleGameController() {
 		fromMatrix = null;
@@ -26,7 +28,7 @@ public class SimpleGameController {
 		hasSelectedTile = false;
 	}
 
-	private static boolean gameLoop(ApplicationContext context, SimpleGameData data, SimpleGameView view, SimpleGameData optionTiles, int turn) {
+	private static boolean gameLoop(ApplicationContext context, GamingBoard data, SimpleGameView view, OptionBoard optionTiles, int turn) {
 		boolean turnEnded = false; // Flag para saber si la jugada (transferencia) ha acabado
 
 		while (!turnEnded) {
@@ -61,13 +63,13 @@ public class SimpleGameController {
 		return true;
 	}
 
-	private static boolean handleClick(int row, int col, SimpleGameData data, SimpleGameData optionTiles, ApplicationContext context, SimpleGameView view) {
-		boolean isInData = (col < data.width() && row < data.height());
-		boolean isInOptions = (col < optionTiles.width() && row < optionTiles.height());
+	private static boolean handleClick(int row, int col, GamingBoard data, OptionBoard optionTiles, ApplicationContext context, SimpleGameView view) {
+		boolean isInData = (col < data.getWidth() && row < data.getHeight());
+		boolean isInOptions = (col < optionTiles.getWidth() && row < optionTiles.getHeight());
 
 		// Ajuste por offset (si lo usas)
-		int offsetCol = col - data.height() - 1;
-		if (offsetCol >= 0 && offsetCol < optionTiles.width() && row < optionTiles.height()) {
+		int offsetCol = col - data.getWidth() - 1;
+		if (offsetCol >= 0 && offsetCol < optionTiles.getWidth() && row < optionTiles.getHeight()) {
 			isInOptions = true;
 		}
 
@@ -85,7 +87,7 @@ public class SimpleGameController {
 		}
 		// Segundo clic: se coloca la Tile
 		else {
-			SimpleGameData toMatrix;
+			GamingBoard toMatrix;
 			Position toPos;
 
 			if (isInData) {
@@ -110,9 +112,9 @@ public class SimpleGameController {
 		}
 	}
 
-	private static void doTransfer(SimpleGameData originMatrix, Position originPos, SimpleGameData targetMatrix, Position targetPos) {
-		Tile fromTile = originMatrix.getMatrix().get(originPos);
-		Tile toTile = targetMatrix.getMatrix().get(targetPos);
+	private static void doTransfer(OptionBoard originMatrix, Position originPos, GamingBoard targetMatrix, Position targetPos) {
+		Tile fromTile = originMatrix.board().get(originPos);
+		Tile toTile = targetMatrix.getBoardMap().get(targetPos);
 		if (fromTile == null || toTile == null) {
 			return;
 		}
@@ -126,20 +128,20 @@ public class SimpleGameController {
 		if (fromTile.habitatList().isEmpty()) {
 			newHabitatList = new ArrayList<>(toTile.habitatList());
 			Tile newTile = new Tile(newAnimalList, newHabitatList, 1, true); //Meaning that is the user that chose that animal to distinguish it
-			targetMatrix.getMatrix().put(targetPos, newTile); // from the tile animal by default.
+			targetMatrix.getBoardMap().put(targetPos, newTile); // from the tile animal by default.
 		} 
 		else {
 			newHabitatList = new ArrayList<>(fromTile.habitatList());
 			Tile newTile = new Tile(newAnimalList, newHabitatList, 3, true);//Meaning that is it's the defualt animal in the tile.
-			targetMatrix.getMatrix().put(targetPos, newTile);
+			targetMatrix.getBoardMap().put(targetPos, newTile);
 		}
 		
 		Tile clearedTile = new Tile(new ArrayList<>(), new ArrayList<>(), fromTile.userTile(), false);
-		originMatrix.getMatrix().put(originPos, clearedTile);
+		originMatrix.board().put(originPos, clearedTile);
 	}
 
-	public static void graphicBoard(ApplicationContext context, SimpleGameData data1, SimpleGameData opt1,
-			SimpleGameData data2, SimpleGameData opt2) {
+	public static void graphicBoard(ApplicationContext context, GamingBoard data1, OptionBoard opt1,
+			GamingBoard data2, OptionBoard opt2) {
 		var screenInfo = context.getScreenInfo();
 		var width = screenInfo.width();
 		var height = screenInfo.height();

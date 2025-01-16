@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import com.github.forax.zen.Application;
@@ -22,7 +23,6 @@ import fr.uge.DataGame.Position;
 import fr.uge.DataGame.Tile;
 import fr.uge.graphic_game.ImageLoader;
 import fr.uge.graphic_game.SimpleGameController;
-import fr.uge.graphic_game.SimpleGameData;
 import fr.uge.graphic_game.SimpleGameView;
 import fr.uge.score_game.FamilyAndIntermediateScore;
 import fr.uge.score_game.ScoreRule;
@@ -76,22 +76,18 @@ public class GamePlay {
 		Player p1 = playerCreate(1);
 		Player p2 = playerCreate(2);
 		if (executionMode == ExecutionMode.COMMAND_LINE) {
-			GamingBoard gb1 = new GamingBoard(p1, true);
-			GamingBoard gb2 = new GamingBoard(p2, true);
+			GamingBoard gb1 = new GamingBoard(p1, true, 5, 5);
+			GamingBoard gb2 = new GamingBoard(p2, true, 5, 5);
 			gameTurns(p1, p2, gb1, gb2, true);
 		} else {
-			GamingBoard gb1 = new GamingBoard(p1, false);
-			GamingBoard gb2 = new GamingBoard(p2, false);
-		    SimpleGameData data1 = gb1.getDataMatrix();
-		    SimpleGameData opt1 = gb1.getOptionMatrix();
-		    SimpleGameData data2 = gb2.getDataMatrix();
-		    SimpleGameData opt2 = gb2.getOptionMatrix();
+			GamingBoard gb1 = new GamingBoard(p1, false, 5, 5);
+			GamingBoard gb2 = new GamingBoard(p2, false, 5, 5);
 
 		    // Lanza la aplicación
 		    Application.run(Color.WHITE, context -> {
 		        // Lógica de dibujo y eventos, usando una variante de graphicBoard
 		        // que reciba data1, data2, etc.
-		        SimpleGameController.graphicBoard(context, data1, opt1, data2, opt2);
+		        SimpleGameController.graphicBoard(context, gb1, gb1.getOpt(), gb2, gb2.getOpt());
 		    });
 		}
 	}
@@ -206,7 +202,7 @@ public class GamePlay {
 		boolean check = false;
 		int opt = 0;
 		System.out.println("Player's " + p.getName() + " turn:");
-		List<Tile> options = gb.OptionTiles(true);
+		List<Tile> options = gb.getOpt().OptionTiles(mode);
 		do {
 			opt = ChooseOpt(p);
 		} while (opt < 0 || opt > 4);

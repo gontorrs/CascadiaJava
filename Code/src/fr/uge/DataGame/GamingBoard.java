@@ -10,47 +10,43 @@ import java.util.Random;
 import com.github.forax.zen.Application;
 
 import fr.uge.graphic_game.SimpleGameController;
-import fr.uge.graphic_game.SimpleGameData;
 
-public class GamingBoard {
+public final class GamingBoard implements Board {
 	private Map<Position, Tile> board;
+	private Map<Position, Tile> optBoard;
+	private final OptionBoard opt;
 	private Player player;
-	private int gridWidth = 5; // x
-	private int gridHeight = 5; // y
-	private final boolean command = true, graph = false;
-	private SimpleGameData data;
-	private SimpleGameData optionTiles;
+	private int gridWidth; // x
+	private int gridHeight; // y
 	private GameLogic gl;
 
-	public GamingBoard(Player player, boolean mode) { // Mode == true (command).
+	public GamingBoard(Player player, boolean mode, int gridWidth, int gridHeight) { // Mode == true (command).
 		this.player = player;
 		this.board = new HashMap<>();
+		this.optBoard = new HashMap<>();
+		this.gridHeight = gridHeight;
+		this.gridWidth = gridWidth;
 		gl = new GameLogic();
+		emptyBoard(board);
 		if (mode) {
-			emptyBoard(board);
-			startingTiles(command);
+			startingTiles();
+			opt = new OptionBoard(player, mode, optBoard, 2, 4, gl);
+			opt.OptionTiles(false);
 			printBoard();
 		} else {
-			data = new SimpleGameData(gridWidth, gridHeight);
-			optionTiles = new SimpleGameData(2, 4);
-			emptyBoard(optionTiles.getMatrix());
-			OptionTiles(graph);
-			emptyBoard(data.getMatrix());
-			startingTiles(graph);
+			startingTiles();
+			opt = new OptionBoard(player, mode, optBoard, 2, 4, gl);
+			opt.OptionTiles(false);
 		}
 	}
 
-	public void startingTiles(boolean mode) {
+	public void startingTiles() {
 		Tile newTile;
 		for (int row = 1; row < gridHeight; row++) {
 			for (int col = 0; col < gridWidth; col++) {
 				if (row == 2 && (col == 1 || col == 2 || col == 3)) {
 					newTile = gl.randomTile();
-					if (mode) {
-						board.put(new Position(col, row), newTile);
-					} else {
-						data.getMatrix().put(new Position(col, row), newTile);
-					}
+					board.put(new Position(col, row), newTile);
 				}
 			}
 		}
@@ -87,63 +83,6 @@ public class GamingBoard {
 		}
 	}
 
-	public List<Tile> OptionTiles(boolean mode) {
-		List<Tile> optionTilesList = new ArrayList<>();
-		Tile[] tiles = generateTiles();
-		if (mode) {
-			for (int i = 0; i < 8; i++) {
-				optionTilesList.add(tiles[i]);
-			}
-			displayTilesSummary(tiles);
-			displayTileDetails(tiles);
-		} else {
-			int index = 0;
-			for (int row = 0; row < 4; row++) {
-				for (int col = 0; col < 2; col++) {
-					Position position = new Position(col, row);
-					optionTiles.getMatrix().put(position, tiles[index]);
-					index++;
-				}
-			}
-		}
-		return optionTilesList;
-	}
-
-	private Tile[] generateTiles() {
-		return new Tile[] { gl.randomTile(), gl.randomTile(), gl.randomTile(), gl.randomTile(),
-				gl.randomNoHabitatTile(), gl.randomNoHabitatTile(), gl.randomNoHabitatTile(),
-				gl.randomNoHabitatTile() };
-
-	}
-
-	private void displayTilesSummary(Tile[] tiles) {
-		String[][] tileLines = new String[4][];
-		for (int i = 0; i < 4; i++) {
-			tileLines[i] = tiles[i].toString().split("\n"); // Divides each tile in lines.
-		}
-		for (int i = 0; i < 4; i++) { // 4 lines: top border, |Animal|, |Habitat|, bottom border
-			for (int j = 0; j < 4; j++) {
-				if (i == 0) {
-					System.out.print(" Tile " + (j + 1) + "     ");
-				} else {
-					System.out.print(tileLines[j][i]);
-				}
-			}
-			System.out.println();
-		}
-		System.out.println();
-	}
-
-	private void displayTileDetails(Tile[] tiles) {
-		for (int i = 4; i < 8; i++) {
-			System.out.println("Tile " + (i - 3) + "\n" + tiles[i].toString());
-		}
-	}
-
-	public Map<Position, Tile> getBoardMap() {
-		return board;
-	}
-
 	public void updateBoard(int posExtend) {
 		Map<Position, Tile> boardFinal = new HashMap<>();
 		emptyBoard(boardFinal);
@@ -178,10 +117,58 @@ public class GamingBoard {
 		return x;
 	}
 	
+	//----Graphical Interface for the ids of the animals-----------------------------------------------------------------------------------------
+	
+	public int idAnimal(int i, int j) {
+		return board.get(new Position(i, j)).idAnimal();
+	}
 
+	public int idHabitat(int i, int j) {
+		return board.get(new Position(i, j)).idHabitat();
+	}
+
+	public int secondAnimalId(int i, int j) {
+		return board.get(new Position(i, j)).secondAnimalId();
+	}
+	
+	//----Graphical Interface for the ids of the animals-----------------------------------------------------------------------------------------
+
+	public boolean isVisible(int i, int j) {
+		Tile tile = board.get(new Position(i, j));
+		if (tile == null) {
+			return false; // O cualquier valor predeterminado que tenga sentido en tu contexto
+		}
+		return tile.visible();
+	}
+	public void hideAll() {
+		for (int i = 0; i < gridWidth; i++) {
+			for (int j = 0; j < gridHeight; j++) {
+				Position pos = new Position(i,j);
+				Tile t = board.get(pos);
+				board.put(new Position(i, j), new Tile(t.animalList(), t.habitatList(), t.userTile(), false));
+			}
+		}
+	}
+	public void showAll() {
+		for (int i = 0; i < gridWidth; i++) {
+			for (int j = 0; j < gridHeight; j++) {
+				Position pos = new Position(i,j);
+				Tile t = board.get(pos);
+				board.put(new Position(i, j), new Tile(t.animalList(), t.habitatList(), t.userTile(), true));
+			}
+		}
+	}
 	
 	//--------------Getters and setter---------------------------------------------------------------------------------------------------------------
 
+	public Map<Position, Tile> getBoardMap() {
+		return board;
+	}
+	
+	public OptionBoard getOpt() {
+		return opt;
+	}
+	
 	public int getWidth() {
 		return gridWidth;
 	}
@@ -192,14 +179,6 @@ public class GamingBoard {
 
 	public void setHeight(int newHeight) {
 		this.gridHeight = newHeight;
-	}
-
-	public SimpleGameData getDataMatrix() {
-		return data;
-	}
-
-	public SimpleGameData getOptionMatrix() {
-		return optionTiles;
 	}
 
 	public int getHeight() {

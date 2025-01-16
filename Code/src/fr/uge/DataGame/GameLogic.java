@@ -45,14 +45,7 @@ public class GameLogic {
 		}
 	}
 	public Tile randomNoHabitatTile() {
-		Random r = new Random();
-		int chance = 0;
-		chance = r.nextInt(4);
-		if (chance == 0 || chance == 1) {
-			return new Tile(twoAnimal(), emptyHabitat(), userAnimal1, true);
-		} else {
-			return new Tile(twoAnimal(), emptyHabitat(), userAnimal1, true);
-		}
+		return new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true);
 	}
 	public Tile emptyTile() {
 		return new Tile(emptyAnimal(), emptyHabitat(), userAnimal1, false);
