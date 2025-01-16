@@ -13,8 +13,6 @@ public class SimpleGameData {
 	private final Map<Position, Tile> matrix;
 	private final int gridWidth;
 	private final int gridHeight;
-	private int wins;
-	private Position firstClickPosition = null;
 
 	public SimpleGameData(int gridWidth, int gridHeight) {
 		if (gridWidth < 0 || gridHeight < 0) {
@@ -23,16 +21,6 @@ public class SimpleGameData {
 		this.gridWidth = gridWidth;
 		this.gridHeight = gridHeight;
 		this.matrix = new HashMap<>();
-		this.wins = 0;
-
-		for (int i = 0; i < gridWidth; i++) {
-			for (int j = 0; j < gridHeight; j++) {
-				List<Animal> animalList = new ArrayList<>();
-				List<Habitat> habitatList = new ArrayList<>();
-				Tile tile = new Tile(animalList, habitatList, 0, false);
-				matrix.put(new Position(i, j), tile);
-			}
-		}
 	}
 
 	public int width() {
@@ -43,50 +31,49 @@ public class SimpleGameData {
 		   return gridHeight;   // era columns()
 		}
 
+		//----Graphical Interface for the ids of the animals-----------------------------------------------------------------------------------------
+		
+		public int idAnimal(int i, int j) {
+			return matrix.get(new Position(i, j)).idAnimal();
+		}
 
-	public int idAnimal(int i, int j) {
-		return matrix.get(new Position(i, j)).idAnimal();
-	}
+		public int idHabitat(int i, int j) {
+			return matrix.get(new Position(i, j)).idHabitat();
+		}
 
-	public int idHabitat(int i, int j) {
-		return matrix.get(new Position(i, j)).idHabitat();
-	}
+		public int secondAnimalId(int i, int j) {
+			return matrix.get(new Position(i, j)).secondAnimalId();
+		}
+		
+		//----Graphical Interface for the ids of the animals-----------------------------------------------------------------------------------------
 
-	public int secondAnimalId(int i, int j) {
-		return matrix.get(new Position(i, j)).secondAnimalId();
-	}
-
-	public boolean win() {
-		return 2 * wins == gridWidth * gridHeight;
-	}
+		public boolean isVisible(int i, int j) {
+			Tile tile = matrix.get(new Position(i, j));
+			if (tile == null) {
+				return false; // O cualquier valor predeterminado que tenga sentido en tu contexto
+			}
+			return tile.visible();
+		}
+		public void hideAll() {
+			for (int i = 0; i < gridWidth; i++) {
+				for (int j = 0; j < gridHeight; j++) {
+					Position pos = new Position(i,j);
+					Tile t = matrix.get(pos);
+					matrix.put(new Position(i, j), new Tile(t.animalList(), t.habitatList(), t.userTile(), false));
+				}
+			}
+		}
+		public void showAll() {
+			for (int i = 0; i < gridWidth; i++) {
+				for (int j = 0; j < gridHeight; j++) {
+					Position pos = new Position(i,j);
+					Tile t = matrix.get(pos);
+					matrix.put(new Position(i, j), new Tile(t.animalList(), t.habitatList(), t.userTile(), true));
+				}
+			}
+		}
 
 	public Map<Position, Tile> getMatrix() {
 		return this.matrix;
-	}
-
-	public boolean isVisible(int i, int j) {
-		Tile tile = matrix.get(new Position(i, j));
-		if (tile == null) {
-			return false; // O cualquier valor predeterminado que tenga sentido en tu contexto
-		}
-		return tile.visible();
-	}
-	public void hideAll() {
-		for (int i = 0; i < gridWidth; i++) {
-			for (int j = 0; j < gridHeight; j++) {
-				Position pos = new Position(i,j);
-				Tile t = matrix.get(pos);
-				matrix.put(new Position(i, j), new Tile(t.animalList(), t.habitatList(), t.userTile(), false));
-			}
-		}
-	}
-	public void showAll() {
-		for (int i = 0; i < gridWidth; i++) {
-			for (int j = 0; j < gridHeight; j++) {
-				Position pos = new Position(i,j);
-				Tile t = matrix.get(pos);
-				matrix.put(new Position(i, j), new Tile(t.animalList(), t.habitatList(), t.userTile(), true));
-			}
-		}
 	}
 }

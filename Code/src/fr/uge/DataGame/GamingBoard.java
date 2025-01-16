@@ -17,36 +17,26 @@ public class GamingBoard {
 	private Player player;
 	private int gridWidth = 5; // x
 	private int gridHeight = 5; // y
-	private final int userAnimal1 = 0, /* userAnimal2 = 1 */ userNotAnimal = 3;
 	private final boolean command = true, graph = false;
 	private SimpleGameData data;
 	private SimpleGameData optionTiles;
+	private GameLogic gl;
 
 	public GamingBoard(Player player, boolean mode) { // Mode == true (command).
 		this.player = player;
 		this.board = new HashMap<>();
+		gl = new GameLogic();
 		if (mode) {
-			emptyBoard(board, command);
+			emptyBoard(board);
 			startingTiles(command);
 			printBoard();
 		} else {
 			data = new SimpleGameData(gridWidth, gridHeight);
 			optionTiles = new SimpleGameData(2, 4);
-			emptyBoard(optionTiles.getMatrix(), graph);
+			emptyBoard(optionTiles.getMatrix());
 			OptionTiles(graph);
-			emptyBoard(board, graph);
+			emptyBoard(data.getMatrix());
 			startingTiles(graph);
-		}
-	}
-
-	public Tile randomTile() {
-		Random r = new Random();
-		int chance = 0;
-		chance = r.nextInt(4);
-		if (chance == 0 || chance == 1) {
-			return new Tile(twoAnimal(), oneHabitat(), userNotAnimal, true);
-		} else {
-			return new Tile(twoAnimal(), oneHabitat(), userNotAnimal, true);
 		}
 	}
 
@@ -55,11 +45,10 @@ public class GamingBoard {
 		for (int row = 1; row < gridHeight; row++) {
 			for (int col = 0; col < gridWidth; col++) {
 				if (row == 2 && (col == 1 || col == 2 || col == 3)) {
-					newTile = randomTile();
-					if(mode) {
+					newTile = gl.randomTile();
+					if (mode) {
 						board.put(new Position(col, row), newTile);
-					}
-					else {
+					} else {
 						data.getMatrix().put(new Position(col, row), newTile);
 					}
 				}
@@ -89,53 +78,41 @@ public class GamingBoard {
 		}
 	}
 
-	public void emptyBoard(Map<Position, Tile> boardEmpty, boolean mode) {
-		if (mode) {
-			for (int row = 0; row < gridHeight; row++) {
-				for (int col = 0; col < gridWidth; col++) {
-					boardEmpty.put(new Position(col, row), new Tile(emptyAnimal(), emptyHabitat(), userNotAnimal));
-				}
-			}
-		} else {
-			for (int row = 0; row < gridHeight; row++) {
-				for (int col = 0; col < gridWidth; col++) {
-					boardEmpty.put(new Position(col, row),
-							new Tile(emptyAnimal(), emptyHabitat(), userNotAnimal, false));
-				}
+	public void emptyBoard(Map<Position, Tile> boardEmpty) {
+		for (int row = 0; row < gridHeight; row++) {
+			for (int col = 0; col < gridWidth; col++) {
+				boardEmpty.put(new Position(col, row),
+						gl.emptyTile());
 			}
 		}
 	}
 
 	public List<Tile> OptionTiles(boolean mode) {
-	    List<Tile> optionTilesList = new ArrayList<>();
-	    Tile[] tiles = generateTiles();
-	    if (mode) {
-	        for (int i = 0; i < 4; i++) {
-	        	optionTilesList.add(tiles[i]);
-	        }
-	        displayTilesSummary(tiles);
-	        displayTileDetails(tiles);
-	    } else {
-	    	int index = 0;
-	        for (int row = 0; row < 4; row++) {
+		List<Tile> optionTilesList = new ArrayList<>();
+		Tile[] tiles = generateTiles();
+		if (mode) {
+			for (int i = 0; i < 8; i++) {
+				optionTilesList.add(tiles[i]);
+			}
+			displayTilesSummary(tiles);
+			displayTileDetails(tiles);
+		} else {
+			int index = 0;
+			for (int row = 0; row < 4; row++) {
 				for (int col = 0; col < 2; col++) {
 					Position position = new Position(col, row);
 					optionTiles.getMatrix().put(position, tiles[index]);
 					index++;
 				}
 			}
-	    }
-	    return optionTilesList;
+		}
+		return optionTilesList;
 	}
 
-
-	
 	private Tile[] generateTiles() {
-		return new Tile[] { randomTile(), randomTile(), randomTile(), randomTile(),
-				new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true), 
-				new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true),
-				new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true),
-				new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true) };
+		return new Tile[] { gl.randomTile(), gl.randomTile(), gl.randomTile(), gl.randomTile(),
+				gl.randomNoHabitatTile(), gl.randomNoHabitatTile(), gl.randomNoHabitatTile(),
+				gl.randomNoHabitatTile() };
 
 	}
 
@@ -163,94 +140,19 @@ public class GamingBoard {
 		}
 	}
 
-	public Boolean validateAnimal(Tile tile, Position pos) {
-		Tile boardTile = board.get(pos);
-		if (!boardTile.animalList().isEmpty() && boardTile.animalList().contains(tile.animalList().get(0))) {
-			return true;
-		} else {
-			System.out.println("Sorry, you cannot place your animal here.");
-			return false;
-		}
-	}
-
-	public Position[] adjacentPos(Position pos) {
-		int x = pos.x();
-		int y = pos.y();
-
-		return new Position[] { new Position(x, y - 1), new Position(x, y + 1), new Position(x - 1, y),
-				new Position(x + 1, y) };
-	}
-
-	public Boolean validateHabitat(Tile tile, Position pos) {
-		Position[] adjacentPositions = adjacentPos(pos);
-		Tile adjacentTile;
-		Tile chosenTile = board.get(pos);
-		if (!chosenTile.habitatList().isEmpty()) {
-			return false;
-		}
-		for (Position adjacentPos : adjacentPositions) {
-			adjacentTile = board.get(adjacentPos);
-			if (adjacentTile != null) {
-				if (!adjacentTile.habitatList().isEmpty()) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public List<Animal> oneAnimal() {
-		List<Animal> animalList = new ArrayList<>();
-		Random r = new Random();
-		Animal[] animals = Animal.values();
-		Animal randomAnimal = animals[r.nextInt(animals.length)];
-		animalList.add(randomAnimal);
-		return animalList;
-	}
-
-	public List<Animal> twoAnimal() {
-		List<Animal> animalList = new ArrayList<>();
-		Random r = new Random();
-		Animal[] animals = Animal.values();
-		Animal randomAnimal1 = animals[r.nextInt(animals.length)];
-		Animal randomAnimal2 = animals[r.nextInt(animals.length)];
-		animalList.add(randomAnimal1);
-		animalList.add(randomAnimal2);
-		return animalList;
-	}
-
-	public List<Habitat> oneHabitat() {
-		List<Habitat> habitatList = new ArrayList<>();
-		Random r = new Random();
-		Habitat[] habitat = Habitat.values();
-		Habitat randomHabitat = habitat[r.nextInt(habitat.length)];
-		habitatList.add(randomHabitat);
-		return habitatList;
-	}
-
-	public List<Habitat> emptyHabitat() {
-		List<Habitat> habitatList = new ArrayList<>();
-		return habitatList;
-	}
-
-	public List<Animal> emptyAnimal() {
-		List<Animal> animalList = new ArrayList<>();
-		return animalList;
-	}
-
 	public Map<Position, Tile> getBoardMap() {
 		return board;
 	}
 
 	public void updateBoard(int posExtend) {
 		Map<Position, Tile> boardFinal = new HashMap<>();
-		emptyBoard(boardFinal, command);
+		emptyBoard(boardFinal);
 		for (int row = 0; row < gridHeight; row++) {
 			for (int col = 0; col < gridWidth; col++) {
 				Position currentPos = new Position(col, row);
 				Tile currentTile = board.get(currentPos);
 				if (currentTile == null) {
-					boardFinal.put(extend(posExtend, row, col), new Tile(emptyAnimal(), emptyHabitat(), userNotAnimal));
+					boardFinal.put(extend(posExtend, row, col), gl.emptyTile());
 				} else if (!currentTile.habitatList().isEmpty()) {
 					boardFinal.put(extend(posExtend, row, col), currentTile);
 				}
@@ -275,6 +177,10 @@ public class GamingBoard {
 		int x = 0;
 		return x;
 	}
+	
+
+	
+	//--------------Getters and setter---------------------------------------------------------------------------------------------------------------
 
 	public int getWidth() {
 		return gridWidth;
@@ -287,10 +193,11 @@ public class GamingBoard {
 	public void setHeight(int newHeight) {
 		this.gridHeight = newHeight;
 	}
-	
+
 	public SimpleGameData getDataMatrix() {
 		return data;
 	}
+
 	public SimpleGameData getOptionMatrix() {
 		return optionTiles;
 	}

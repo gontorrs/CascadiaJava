@@ -3,7 +3,10 @@ import fr.uge.DataGame.*;
 import java.util.*;
 
 public final class FamilyScore implements ScoreRule {
-	
+	private GameLogic gl;
+	public FamilyScore(){
+		gl = new GameLogic();
+	}
 	@Override
 	public int calculateScore(GamingBoard gb) {
 		Objects.requireNonNull(gb, "Board must not be null");
@@ -30,7 +33,7 @@ public final class FamilyScore implements ScoreRule {
 			Tile tile = gb.getBoardMap().get(current);
 			if (tile != null && tile.animalList().stream().anyMatch(a -> a.name().equals(species))) {
 				visited.add(current);
-				stack.addAll(Arrays.asList(gb.adjacentPos(current)));  // convertir un tableau en liste avant de l'ajouter au stack 
+				stack.addAll(Arrays.asList(gl.adjacentPos(current)));  // convertir un tableau en liste avant de l'ajouter au stack 
 			}
 		}
 		return visited;

@@ -13,6 +13,7 @@ import java.util.Set;
 
 import fr.uge.DataGame.Animal;
 import fr.uge.DataGame.Difficulty;
+import fr.uge.DataGame.GameLogic;
 import fr.uge.DataGame.GamingBoard;
 import fr.uge.DataGame.Position;
 import fr.uge.DataGame.Tile;
@@ -20,9 +21,10 @@ import fr.uge.DataGame.Tile;
 public final class FamilyAndIntermediateScore implements ScoreRule {
 
 	private final Difficulty difficulty;
-
+	private GameLogic gl;
 	public FamilyAndIntermediateScore(Difficulty difficulty) {
 		this.difficulty = Objects.requireNonNull(difficulty);
+		gl = new GameLogic();
 	}
 
 	@Override
@@ -51,7 +53,7 @@ public final class FamilyAndIntermediateScore implements ScoreRule {
 			Tile tile = gb.getBoardMap().get(current);
 			if (tile != null && tile.animalList().stream().anyMatch(a -> a.name().equals(species))) {
 				visited.add(current);
-				stack.addAll(Arrays.asList(gb.adjacentPos(current)));
+				stack.addAll(Arrays.asList(gl.adjacentPos(current)));
 			}
 		}
 		return visited;

@@ -15,6 +15,7 @@ import com.github.forax.zen.PointerEvent;
 import fr.uge.DataGame.Animal;
 import fr.uge.DataGame.Difficulty;
 import fr.uge.DataGame.ExecutionMode;
+import fr.uge.DataGame.GameLogic;
 import fr.uge.DataGame.GamingBoard;
 import fr.uge.DataGame.Player;
 import fr.uge.DataGame.Position;
@@ -33,9 +34,11 @@ public class GamePlay {
 	private GamingBoard gb1;
 	private GamingBoard gb2;
 	private ExecutionMode executionMode;
+	private GameLogic gameLogic;
 
 	public GamePlay(Difficulty difficulty) {
 		reader = new BufferedReader(new InputStreamReader(System.in));
+		gameLogic = new GameLogic();
 		Objects.requireNonNull(difficulty);
 		this.difficulty = difficulty;
 	}
@@ -119,14 +122,46 @@ public class GamePlay {
 			}
 		} while (turn <= 20);
 	}
+	
+    public boolean placeAnimal(Tile animalTile, GamingBoard gb, Player p) throws IOException {
+    	System.out.println("Enter the coordinates for your animal tile:");
+        Position posAnimal = chooseCoord(animalTile, p, gb);
+        Tile currentTile = gb.getBoardMap().get(posAnimal);
+        boolean check = gameLogic.validateAnimal(animalTile, posAnimal, gb);
+        int userAnimalOption = gameLogic.equalAnimal(currentTile.animalList(), animalTile.animalList());
+        if (check) {
+            Tile userAnimal = new Tile(currentTile.animalList(), currentTile.habitatList(), userAnimalOption);
+            gb.getBoardMap().put(posAnimal, userAnimal);
+            return true;
+        }
+        return false;
+    }
 
-	private Position chooseCoord(Tile t, Player p, GamingBoard gb) throws IOException {
-		System.out.print("Enter the x-coordinate: ");
-		int x = Integer.parseInt(reader.readLine());
-		System.out.print("Enter the y-coordinate: ");
-		int y = Integer.parseInt(reader.readLine());
-		return new Position(x, y);
-	}
+    public boolean placeHabitat(Tile habitatTile, GamingBoard gb, Player p) throws IOException {
+        Position posHabitat;
+        do {
+        	System.out.println("Enter the coordinates for your habitat tile:");
+            posHabitat = chooseCoord(habitatTile, p, gb);
+        } while (posHabitat.x() < 0 || posHabitat.y() < 0 || posHabitat.x() > gb.getWidth() || posHabitat.y() > gb.getHeight());
+        boolean check = gameLogic.validateHabitat(habitatTile, posHabitat, gb);
+        if (check) {
+            Position posHabitatNew = gameLogic.updatePos(posHabitat.x(), posHabitat.y(), gb);
+            Tile userHabitat = new Tile(habitatTile.animalList(), habitatTile.habitatList(), 3);
+            gb.getBoardMap().put(posHabitatNew, userHabitat);
+        }
+        else {
+        	System.out.println("Please choose and adjacent position.");
+        }
+        return check;
+    }
+
+    private Position chooseCoord(Tile t, Player p, GamingBoard gb) throws IOException {
+        System.out.print("Enter the x-coordinate: ");
+        int x = Integer.parseInt(reader.readLine());
+        System.out.print("Enter the y-coordinate: ");
+        int y = Integer.parseInt(reader.readLine());
+        return new Position(x, y);
+    }
 
 	private int ChooseOpt(Player p) throws IOException {
 		System.out.print("Player " + p.getName() + " choose one tile (Animal + Habitat): ");
@@ -171,7 +206,7 @@ public class GamePlay {
 		boolean check = false;
 		int opt = 0;
 		System.out.println("Player's " + p.getName() + " turn:");
-		List<Tile> options = gb.OptionTiles(mode);
+		List<Tile> options = gb.OptionTiles(true);
 		do {
 			opt = ChooseOpt(p);
 		} while (opt < 0 || opt > 4);
@@ -188,73 +223,6 @@ public class GamePlay {
 			gb.printBoard();
 		}
 	}
-
-	public boolean placeHabitat(Tile habitatTile, GamingBoard gb, Player p) throws IOException {
-		boolean check = false;
-		Tile userHabitat;
-		Position posHabitat, posHabitatNew;
-		System.out.println("Choose the coordinates for you habitat: ");
-		do {
-			posHabitat = chooseCoord(habitatTile, p, gb);
-		} while (posHabitat.x() < 0 || posHabitat.y() < 0 || posHabitat.x() > gb.getWidth()
-				|| posHabitat.y() > gb.getHeight());
-		check = gb.validateHabitat(habitatTile, posHabitat);
-		if (check) {
-			posHabitatNew = updatePos(posHabitat.x(), posHabitat.y(), gb);
-			userHabitat = new Tile(habitatTile.animalList(), habitatTile.habitatList(), 3);
-			gb.getBoardMap().put(posHabitatNew, userHabitat); // puts the habitat in the board.
-			return check;
-		} else {
-			System.out.println("Please choose an adjacent tile.");
-			return check;
-		}
-	}
-
-	public boolean placeAnimal(Tile animalTile, GamingBoard gb, Player p) throws IOException {
-		Tile userAnimal;
-		boolean check = false;
-		System.out.println("Choose the coordinates for you animal: ");
-		Position posAnimal = chooseCoord(animalTile, p, gb);
-		Tile currentTile = gb.getBoardMap().get(posAnimal);
-		check = gb.validateAnimal(animalTile, posAnimal);
-		int userAnimaloption = equalAnimal(currentTile.animalList(), animalTile.animalList());
-		if (check) {
-			userAnimal = new Tile(currentTile.animalList(), currentTile.habitatList(), userAnimaloption);
-			gb.getBoardMap().put(posAnimal, userAnimal);
-			return check;
-		} else {
-			System.out.println("Please choose a tile that contains the animal you chose.");
-			return check;
-		}
-	}
-
-	private int equalAnimal(List<Animal> animalLong, List<Animal> animalShort) {
-		Objects.requireNonNull(animalLong);
-		Objects.requireNonNull(animalShort);
-		for (int i = 0; i < animalLong.size(); i++) {
-			if (animalLong.get(i).equals(animalShort.get(0))) {
-				return i;
-			}
-		}
-		return 3;
-	}
-
-	public Position updatePos(int x, int y, GamingBoard gb) {
-		Objects.requireNonNull(gb);
-		int posExtend = (x == 0 ? 4 : x == gb.getWidth() - 1 ? 2 : 0) + (y == 0 ? 1 : y == gb.getHeight() - 1 ? 3 : 0);
-
-		if (x == 0 || x == gb.getWidth() - 1)
-			gb.setWidth(gb.getWidth() + 1);
-		if (y == 0 || y == gb.getHeight() - 1)
-			gb.setHeight(gb.getHeight() + 1);
-
-		if (posExtend != 0) {
-			gb.updateBoard(posExtend);
-			return gb.extend(posExtend, y, x);
-		}
-		return new Position(x, y);
-	}
-
 	public void summaryGame() throws IOException {
 		System.out.println("********************************\n");
 		System.out.println("*    WELCOME TO CASCADIA GAME  *\n");

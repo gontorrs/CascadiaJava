@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import fr.uge.DataGame.Animal;
+import fr.uge.DataGame.GameLogic;
 import fr.uge.DataGame.GamingBoard;
 import fr.uge.DataGame.Position;
 import fr.uge.DataGame.Tile;
@@ -17,9 +18,10 @@ import fr.uge.DataGame.Tile;
 public final class CardScore implements ScoreRule {
 
 	private final ScoreCard scoreCard;
-
+	private GameLogic gl;
 	public CardScore(ScoreCard scoreCard) {
 		this.scoreCard = Objects.requireNonNull(scoreCard);
+		gl = new GameLogic();
 	}
 
 	@Override
@@ -197,7 +199,7 @@ public final class CardScore implements ScoreRule {
 			var tile = gb.getBoardMap().get(current);
 			if (tile != null && tile.animalList().contains(animal)) {
 				visited.add(current);
-				stack.addAll(Arrays.asList(gb.adjacentPos(current)));
+				stack.addAll(Arrays.asList(gl.adjacentPos(current)));
 			}
 		}
 		return visited;
@@ -208,7 +210,7 @@ public final class CardScore implements ScoreRule {
 	    Map<Position, Tile> boardMap = gb.getBoardMap();
 	    Set<Position> countedPositions = new HashSet<>();
 	    for (Position pos : group) {
-	        Position[] adjacentPositions = gb.adjacentPos(pos);
+	        Position[] adjacentPositions = gl.adjacentPos(pos);
 	        for (Position adjPos : adjacentPositions) {
 	            Tile adjTile = boardMap.get(adjPos);
 	            if (adjTile != null && adjTile.userTile() != 3) {
