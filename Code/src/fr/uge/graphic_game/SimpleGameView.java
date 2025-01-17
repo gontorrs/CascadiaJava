@@ -15,7 +15,7 @@ import fr.uge.DataGame.GamingBoard;
 import fr.uge.DataGame.OptionBoard;
 import fr.uge.DataGame.Position;
 import fr.uge.DataGame.Tile;
-
+//This class is the fasade of the graphical interface, is where each cell and image is drawn.
 public record SimpleGameView(int xOrigin, int yOrigin, int height, int width, int squareSize, ImageLoader loader) {
 
 	public static SimpleGameView initGameGraphics(int xOrigin, int yOrigin, int length, GamingBoard data,

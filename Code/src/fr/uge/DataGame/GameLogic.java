@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-
+//This class has all the functions so that it's easier to incorporate everything with the terminal and graphical interface.
 public class GameLogic {
 	private final int userAnimal1 = 0, /* userAnimal2 = 1 */ userNotAnimal = 3;
     public boolean validateAnimal(Tile tile, Position pos, GamingBoard board) {
         Tile boardTile = board.getBoardMap().get(pos);
+        System.out.println("Donde escojo" + boardTile.animalList());
+        System.out.println("Animal Tile: " + tile.animalList());
         if (!boardTile.animalList().isEmpty() && boardTile.animalList().contains(tile.animalList().get(0))) {
             return true;
         } else {
@@ -48,7 +50,7 @@ public class GameLogic {
 		return new Tile(oneAnimal(), emptyHabitat(), userAnimal1, true);
 	}
 	public Tile emptyTile() {
-		return new Tile(emptyAnimal(), emptyHabitat(), userAnimal1, false);
+		return new Tile(emptyAnimal(), emptyHabitat(), userNotAnimal, false);
 	}
 	
 	public List<Animal> oneAnimal() {
@@ -103,21 +105,26 @@ public class GameLogic {
 
     public Position updatePos(int x, int y, GamingBoard board) {
         Objects.requireNonNull(board);
-        int posExtend = (x == 0 ? 4 : x == board.getWidth() - 1 ? 2 : 0) + (y == 0 ? 1 : y == board.getHeight() - 1 ? 3 : 0);
+        int currentWidth = board.getWidth();
+        int currentHeight = board.getHeight();
+        
+        int posExtend = (x == 0 ? 4 : x == currentWidth - 1 ? 2 : 0) 
+                      + (y == 0 ? 1 : y == currentHeight - 1 ? 3 : 0);
 
-        if (x == 0 || x == board.getWidth() - 1) {
-            board.setWidth(board.getWidth() + 1);
+        if (x == 0 || x == currentWidth - 1) {
+            currentWidth++;
         }
-        if (y == 0 || y == board.getHeight() - 1) {
-            board.setHeight(board.getHeight() + 1);
+        if (y == 0 || y == currentHeight - 1) {
+            currentHeight++;
         }
 
         if (posExtend != 0) {
             board.updateBoard(posExtend);
-            return board.extend(posExtend, y, x);
+            return board.extend(posExtend, x, y);
         }
         return new Position(x, y);
     }
+
 
     public int equalAnimal(List<Animal> animalLong, List<Animal> animalShort) {
         Objects.requireNonNull(animalLong);

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
+//This tile record holds the content of each tile, animals, habitat, if the user puts the tile or not and visibility.
 public record Tile(List<Animal> animalList, List<Habitat> habitatList, int userTile, boolean visibility) {
     public Tile {
         Objects.requireNonNull(animalList);

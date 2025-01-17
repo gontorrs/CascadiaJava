@@ -1,11 +1,9 @@
 package fr.uge.graphic_game;
 
-import java.awt.Color;
-import java.text.Normalizer.Form;
+//This class would be the main controller for the graphical interface option.
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.forax.zen.Application;
 import com.github.forax.zen.ApplicationContext;
 import com.github.forax.zen.KeyboardEvent;
 import com.github.forax.zen.PointerEvent;
@@ -29,18 +27,18 @@ public class SimpleGameController {
 	}
 
 	private static boolean gameLoop(ApplicationContext context, GamingBoard data, SimpleGameView view, OptionBoard optionTiles, int turn) {
-		boolean turnEnded = false; // Flag para saber si la jugada (transferencia) ha acabado
+		boolean turnEnded = false;
 
 		while (!turnEnded) {
 			var event = context.pollOrWaitEvent(10);
 			if (event == null) {
-				continue; // nada que procesar, seguir esperando
+				continue;
 			}
 			switch (event) {
 			case KeyboardEvent ke -> {
 				if (ke.key() == KeyboardEvent.Key.Q) {
 					System.out.println("Exiting the game...");
-					return false; // señal de que se quiere salir por completo
+					return false;
 				}
 			}
 			case PointerEvent pe -> {
@@ -51,7 +49,7 @@ public class SimpleGameController {
 					turnEnded = handleClick(row, column, data, optionTiles, context, view);
 					SimpleGameView.draw(context, data, view, optionTiles, turn);
 					try {
-					    Thread.sleep(1000); // 1 segundo de pausa
+					    Thread.sleep(1000); // 1 second of pause to view the changes.
 					} catch (InterruptedException e) {
 					    Thread.currentThread().interrupt();
 					}
@@ -139,16 +137,8 @@ public class SimpleGameController {
 		Tile clearedTile = new Tile(new ArrayList<>(), new ArrayList<>(), fromTile.userTile(), false);
 		originMatrix.board().put(originPos, clearedTile);
 	}
-
-	public static void graphicBoard(ApplicationContext context, GamingBoard data1, OptionBoard opt1,
-			GamingBoard data2, OptionBoard opt2) {
-		var screenInfo = context.getScreenInfo();
-		var width = screenInfo.width();
-		var height = screenInfo.height();
-		var margin = 50;
-		int turn = 0;
-		boolean cont = true;
-
+	
+	private static ImageLoader LoadImages() {
 		var animalImages = new String[] { "bear.png", "elk.png", "fox.png", "eagle.png", "salmon.png" };
 		var habitatImages = new String[] { "mountain.png", "forest.png", "river.png", "grassland.png", "wetland.png" };
 		var userAnimals = new String[] { "bearUser.png", "elkUser.png", "foxUser.png", "eagleUser.png", "salmonUser.png" };
@@ -156,6 +146,17 @@ public class SimpleGameController {
 		var players = new String[] { "player1.png", "player2.png" };
 		var blankImage = "blank.png";
 		var images = new ImageLoader("data", animalImages, habitatImages, blankImage, userAnimals, numbers, players);
+		return images;
+	}
+
+	public static void graphicBoard(ApplicationContext context, GamingBoard data1, OptionBoard opt1, GamingBoard data2, OptionBoard opt2) {
+		var screenInfo = context.getScreenInfo();
+		var width = screenInfo.width();
+		var height = screenInfo.height();
+		var margin = 50;
+		int turn = 0;
+		boolean cont = true;
+		var images = LoadImages();
 		var view1 = SimpleGameView.initGameGraphics(margin, margin, (int) Math.min(width, height) - 2 * margin, data1, images);
 		var view2 = SimpleGameView.initGameGraphics(margin, margin, (int) Math.min(width, height) - 2 * margin, data2, images);
 		while (true) {

@@ -26,7 +26,7 @@ import fr.uge.graphic_game.SimpleGameController;
 import fr.uge.graphic_game.SimpleGameView;
 import fr.uge.score_game.FamilyAndIntermediateScore;
 import fr.uge.score_game.ScoreRule;
-
+//This class is the match, where there will be player one vs player two.
 public class GamePlay {
 
 	private final BufferedReader reader;
@@ -76,28 +76,17 @@ public class GamePlay {
 		Player p1 = playerCreate(1);
 		Player p2 = playerCreate(2);
 		if (executionMode == ExecutionMode.COMMAND_LINE) {
-			GamingBoard gb1 = new GamingBoard(p1, true, 5, 5);
-			GamingBoard gb2 = new GamingBoard(p2, true, 5, 5);
+			GamingBoard gb1 = new GamingBoard(p1, true, 5, 5); //For player one for the terminal.
+			GamingBoard gb2 = new GamingBoard(p2, true, 5, 5); //For player two for the terminal.
 			gameTurns(p1, p2, gb1, gb2, true);
 		} else {
-			GamingBoard gb1 = new GamingBoard(p1, false, 5, 5);
-			GamingBoard gb2 = new GamingBoard(p2, false, 5, 5);
+			GamingBoard gb1 = new GamingBoard(p1, false, 5, 5); //For player one for the graphical interface.
+			GamingBoard gb2 = new GamingBoard(p2, false, 5, 5); //For player two for the graphical interface.
 
-		    // Lanza la aplicación
 		    Application.run(Color.WHITE, context -> {
-		        // Lógica de dibujo y eventos, usando una variante de graphicBoard
-		        // que reciba data1, data2, etc.
-		        SimpleGameController.graphicBoard(context, gb1, gb1.getOpt(), gb2, gb2.getOpt());
+		        SimpleGameController.graphicBoard(context, gb1, gb1.getOpt(), gb2, gb2.getOpt()); //Runs Zen library interface.
 		    });
 		}
-	}
-
-	public GamingBoard getGamingBoard1() {
-		return gb1;
-	}
-
-	public GamingBoard getGamingBoard2() {
-		return gb2;
 	}
 
 	private Player playerCreate(int numberPL) throws IOException {
@@ -119,6 +108,8 @@ public class GamePlay {
 		} while (turn <= 20);
 	}
 	
+	//Makes sure that you can place the animal, if there is the same animal ,it let's you put it, 
+	//otherwsie infinite loop until you choose a valid position.
     public boolean placeAnimal(Tile animalTile, GamingBoard gb, Player p) throws IOException {
     	System.out.println("Enter the coordinates for your animal tile:");
         Position posAnimal = chooseCoord(animalTile, p, gb);
@@ -126,13 +117,15 @@ public class GamePlay {
         boolean check = gameLogic.validateAnimal(animalTile, posAnimal, gb);
         int userAnimalOption = gameLogic.equalAnimal(currentTile.animalList(), animalTile.animalList());
         if (check) {
-            Tile userAnimal = new Tile(currentTile.animalList(), currentTile.habitatList(), userAnimalOption);
+            Tile userAnimal = new Tile(currentTile.animalList(), currentTile.habitatList(), userAnimalOption, true);
             gb.getBoardMap().put(posAnimal, userAnimal);
             return true;
         }
         return false;
     }
-
+	
+	//Makes sure that you can place the habitat, if there are no adjacent tiles next to the position you chose, 
+    //it doesn't let you, otherwise yes and return true.
     public boolean placeHabitat(Tile habitatTile, GamingBoard gb, Player p) throws IOException {
         Position posHabitat;
         do {
@@ -156,7 +149,7 @@ public class GamePlay {
         int x = Integer.parseInt(reader.readLine());
         System.out.print("Enter the y-coordinate: ");
         int y = Integer.parseInt(reader.readLine());
-        return new Position(x, y);
+        return new Position(y,x);
     }
 
 	private int ChooseOpt(Player p) throws IOException {
@@ -168,31 +161,31 @@ public class GamePlay {
 		return opt;
 	}
 
-	private Tile chooseHabitatOption(List<Tile> options, int opt) {
+	private Tile chooseHabitatOption(Map<Position, Tile> options, int opt) {
 		switch (opt) {
 		case 1:
-			return options.get(0);
+			return options.get(new Position(0,0));
 		case 2:
-			return options.get(1);
+			return options.get(new Position(0,1));
 		case 3:
-			return options.get(2);
+			return options.get(new Position(0, 2));
 		case 4:
-			return options.get(3);
+			return options.get(new Position(0, 3));
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + opt);
 		}
 	}
 
-	public Tile chooseAnimalOption(List<Tile> options, int opt) {
+	public Tile chooseAnimalOption(Map<Position, Tile> options, int opt) {
 		switch (opt) {
 		case 1:
-			return options.get(4);
+			return options.get(new Position(1,0));
 		case 2:
-			return options.get(5);
+			return options.get(new Position(1,1));
 		case 3:
-			return options.get(6);
+			return options.get(new Position(1, 2));
 		case 4:
-			return options.get(7);
+			return options.get(new Position(1, 3));
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + opt);
 		}
@@ -202,7 +195,8 @@ public class GamePlay {
 		boolean check = false;
 		int opt = 0;
 		System.out.println("Player's " + p.getName() + " turn:");
-		List<Tile> options = gb.getOpt().OptionTiles(mode);
+		Map<Position, Tile> options = gb.getOpt().OptionTiles();
+		gb.getOpt().printBoard();
 		do {
 			opt = ChooseOpt(p);
 		} while (opt < 0 || opt > 4);
@@ -212,6 +206,7 @@ public class GamePlay {
 		} while (!check);
 		gb.printBoard();
 		Tile animalTile = chooseAnimalOption(options, opt);
+		System.out.println(animalTile.animalList());
 		do {
 			check = placeAnimal(animalTile, gb, p);
 		} while (!check);
@@ -290,5 +285,13 @@ public class GamePlay {
 		} else {
 			System.out.println("It's a tie!");
 		}
+	}
+//-Getters-------------------------------------------------------------------------------------------------------
+	public GamingBoard getGamingBoard1() {
+		return gb1;
+	}
+
+	public GamingBoard getGamingBoard2() {
+		return gb2;
 	}
 }
